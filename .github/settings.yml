@@ -43,10 +43,10 @@ repository:
 # Labels: define labels for Issues and Pull Requests
 labels:
 
-#    - name: 'WEBSITE 🌐'
-#      color: "#0052CC"
-#      description: Website Tasks
-#
+    - name: 'WEBSITE 🌐'
+      color: "#0052CC"
+      description: Website Tasks
+
 #    - name: 'SUPPORT ❓'
 #      color: "#d876e3"
 #      description: Support Question
