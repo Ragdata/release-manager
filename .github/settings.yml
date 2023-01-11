@@ -47,58 +47,58 @@ labels:
       color: "#0052CC"
       description: Website Tasks
 
-#    - name: 'SUPPORT ❓'
-#      color: "#d876e3"
-#      description: Support Question
-#
-#    - name: 'SHOW & TELL 🚩'
-#      color: "#FEF2C0"
-#      description: Show & Tell - The ONLY place you can legally post links to your shit in this community
-#
-#    - name: 'Q&A ❤️'
-#      color: "#E99695"
-#      description: Q&A Thread
-#
-#    - name: 'POLL 📋'
-#      color: "#C2E0C6"
-#      description: A Poll
-#
-#    - name: 'IDEA 💡'
-#      color: "#FEF2C0"
-#      description: Idea / Suggestion
-#
-#    - name: 'ANNOUNCEMENT 📣'
-#      color: "#F9D0C4"
-#      description: A broadcast message for everyone's attention
-#
-#    - name: 'WORK 🚧'
-#      color: "#D93F0B"
-#      description: Work that needs to happen
-#
-#    - name: 'BUG 🐞'
-#      color: "#ff0000"
-#      description: Something isn't working
-#
-#    - name: 'DISCUSSION 💬'
-#      color: "#cfd3d7"
-#      description: Discussion Thread
-#
-#    - name: 'DOCS 📘'
-#      color: "#0075ca"
-#      description: Improvements or additions to documentation
-#
-#    - name: 'EPIC 📌'
-#      color: "#7057ff"
-#      description: Work unit containing sub-tasks
-#
-#    - name: 'FEATURE 🚩'
-#      color: "#00ff00"
-#      description: New feature or request
-#
-#    - name: 'QUESTION ❓'
-#      color: "#d876e3"
-#      description: Support Question
-#
+    - name: 'SUPPORT ❓'
+      color: "#d876e3"
+      description: Support Question
+
+    - name: 'SHOW & TELL 🚩'
+      color: "#FEF2C0"
+      description: Show & Tell - The ONLY place you can legally post links to your shit in this community
+
+    - name: 'Q&A ❤️'
+      color: "#E99695"
+      description: Q&A Thread
+
+    - name: 'POLL 📋'
+      color: "#C2E0C6"
+      description: A Poll
+
+    - name: 'IDEA 💡'
+      color: "#FEF2C0"
+      description: Idea / Suggestion
+
+    - name: 'ANNOUNCEMENT 📣'
+      color: "#F9D0C4"
+      description: A broadcast message for everyone's attention
+
+    - name: 'WORK 🚧'
+      color: "#D93F0B"
+      description: Work that needs to happen
+
+    - name: 'BUG 🐞'
+      color: "#ff0000"
+      description: Something isn't working
+
+    - name: 'DISCUSSION 💬'
+      color: "#cfd3d7"
+      description: Discussion Thread
+
+    - name: 'DOCS 📘'
+      color: "#0075ca"
+      description: Improvements or additions to documentation
+
+    - name: 'EPIC 📌'
+      color: "#7057ff"
+      description: Work unit containing sub-tasks
+
+    - name: 'FEATURE 🚩'
+      color: "#00ff00"
+      description: New feature or request
+
+    - name: 'QUESTION ❓'
+      color: "#d876e3"
+      description: Support Question
+
 #    - name: 'REQUEST 🚧'
 #      color: "#FBCA04"
 #      description: Feature request or suggestion
