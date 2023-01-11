@@ -139,61 +139,61 @@ labels:
       color: "#c5def5"
       description:
 
-#    - name: 'Status: Triage'
-#      color: "#5319E7"
-#      description: (TRIAGE)
-#
-#    - name: 'Status: Confirmed'
-#      color: "#0052CC"
-#      description: (TODO)
-#
-#    - name: 'Status: ToDo'
-#      color: "#0052CC"
-#      description: (TODO)
-#
-#    - name: 'Status: Blocked'
-#      color: "#000000"
-#      description: (BLOCKED)
-#
-#    - name: 'Status: Returned'
-#      color: "#D93F0B"
-#      description: (REVIEWER RETURNED)
-#
-#    - name: 'Status: In Progress'
-#      color: "#FBCA04"
-#      description: (IN PROGRESS)
-#
-#    - name: 'Status: Blocking'
-#      color: "#B60205"
-#      description: (BLOCKING)
-#
-#    - name: 'Status: For Review'
-#      color: "#006B75"
-#      description: (FOR REVIEW)
-#
-#    - name: 'Status: Under Review'
-#      color: "#0E8A16"
-#      description: (UNDER REVIEW)
-#
-#    - name: 'Status: To Merge'
-#      color: "#F9D0C4"
-#      description: (TO MERGE)
-#
-#    - name: "Status: Can't Replicate"
-#      color: "#D4C5F9"
-#      description: (CLOSED)
-#
-#    - name: 'Status: Duplicate'
-#      color: "#D4C5F9"
-#      description: (CLOSED)
-#
-#    - name: "Status: Won't Fix"
-#      color: "#D4C5F9"
-#      description: (CLOSED)
-#
-#    - name: 'Status: DONE'
-#      color: "#0E8A16"
-#      description: (DONE)
+    - name: 'Status: Triage'
+      color: "#5319E7"
+      description: (TRIAGE)
+
+    - name: 'Status: Confirmed'
+      color: "#0052CC"
+      description: (TODO)
+
+    - name: 'Status: ToDo'
+      color: "#0052CC"
+      description: (TODO)
+
+    - name: 'Status: Blocked'
+      color: "#000000"
+      description: (BLOCKED)
+
+    - name: 'Status: Returned'
+      color: "#D93F0B"
+      description: (REVIEWER RETURNED)
+
+    - name: 'Status: In Progress'
+      color: "#FBCA04"
+      description: (IN PROGRESS)
+
+    - name: 'Status: Blocking'
+      color: "#B60205"
+      description: (BLOCKING)
+
+    - name: 'Status: For Review'
+      color: "#006B75"
+      description: (FOR REVIEW)
+
+    - name: 'Status: Under Review'
+      color: "#0E8A16"
+      description: (UNDER REVIEW)
+
+    - name: 'Status: To Merge'
+      color: "#F9D0C4"
+      description: (TO MERGE)
+
+    - name: "Status: Can't Replicate"
+      color: "#D4C5F9"
+      description: (CLOSED)
+
+    - name: 'Status: Duplicate'
+      color: "#D4C5F9"
+      description: (CLOSED)
+
+    - name: "Status: Won't Fix"
+      color: "#D4C5F9"
+      description: (CLOSED)
+
+    - name: 'Status: DONE'
+      color: "#0E8A16"
+      description: (DONE)
 
 # Collaborators: give specific users access to this repository.
 #collaborators:
