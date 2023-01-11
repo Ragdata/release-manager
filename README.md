@@ -95,13 +95,7 @@ SOFTWARE.
 
 ## 📖 Resources
 
-bots:
 
-- [Settings Bot](https://probot.github.io/apps/settings/)
-- [Welcome Bot](https://probot.github.io/apps/welcome/)
-- [Sentiment Bot](https://probot.github.io/apps/sentiment-bot/)
-- [Stale Bot](https://github.com/apps/stale)
-- [No Response Bot](https://probot.github.io/apps/no-response/)
 
 [`^ Top`](#-table-of-contents)
 
