@@ -22,7 +22,7 @@ rmInstall() {
 
     [[ -z "$RM_REPO" ]] && errorExit "rmInstall :: Repository Path Not Found!"
 
-    if ! what git; then
+    if ! what -q git; then
         while [[ $IGIT =~ $RESP ]]
         do
             echo "This package requires Git"
@@ -37,7 +37,7 @@ rmInstall() {
         fi
     fi
 
-    if ! what jq; then
+    if ! what -q jq; then
         while [[ $IJQ =~ $RESP ]]
         do
             echo "This package requires JQ"
@@ -52,7 +52,7 @@ rmInstall() {
         fi
     fi
 
-    if ! what jo; then
+    if ! what -q jo; then
         while [[ $IJO =~ $RESP ]]
         do
             echo "This package requires JO"
@@ -67,7 +67,7 @@ rmInstall() {
         fi
     fi
 
-    if ! what sponge; then
+    if ! what -q sponge; then
         while [[ $IMU =~ $RESP ]]
         do
             echo "This package requires MoreUtils"
@@ -82,7 +82,7 @@ rmInstall() {
         fi
     fi
 
-#    if ! what unzip; then
+#    if ! what -q unzip; then
 #        while [[ $IZIP =~ $RESP ]]
 #        do
 #            echo "This package requires Zip/Unzip"
@@ -97,7 +97,7 @@ rmInstall() {
 #        fi
 #    fi
 
-    if ! what fx; then
+    if ! what -q fx; then
         while [[ $IFX =~ $RESP ]]
         do
             echo "This package optionally requires FX"
