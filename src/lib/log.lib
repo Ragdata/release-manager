@@ -18,8 +18,7 @@
 #
 # Help
 #
-logHelp()
-{
+logHelp() {
     clear
     echoGold "\n======================================================"
     echoGold "/usr/local/lib/stack-log.sh LIBRARY"
@@ -55,8 +54,7 @@ logHelp()
 #
 # echoLog [MESSAGE] [OPTIONS]...
 #
-echoLog()
-{
+echoLog() {
     local args=("$@")
     local msg=""
     local color=""
@@ -231,8 +229,7 @@ echoLog()
 #
 # errorLog [MESSAGE] [OPTIONS]...
 #
-errorLog()
-{
+errorLog() {
     local args="$*"
     local msg=""
     local color=""
@@ -378,8 +375,7 @@ errorLog()
 #
 # exitLog [MESSAGE] [OPTIONS]...
 #
-exitLog()
-{
+exitLog() {
     local msg=${1:-"Unknown Error"}
 
     [[ -n "$1" ]] && shift
@@ -409,8 +405,7 @@ exitLog()
 #
 # logInit [NAME]
 #
-logInit()
-{
+logInit() {
     local file=${1:-"fallback"}
 
     declare -gx LOG
@@ -435,8 +430,7 @@ logInit()
 #
 # logWrite [MESSAGE] [OPTIONS]...
 #
-logWrite()
-{
+logWrite() {
     local msg=""
 
     if [[ ! $1 =~ $isOPT ]]; then
