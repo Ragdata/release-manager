@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# shellcheck disable=SC2034
+# shellcheck disable=SC2034,SC1090,SC2015
 # ==================================================================
 # src/lib/functions.lib
 # ==================================================================
@@ -117,8 +117,7 @@ echoWarning() { echoGold "[-] ${1:-}"; }
 #   -c              Set continuous mode
 #   --code=[CODE]   Set exit code = CODE
 #
-errorExit()
-{
+errorExit() {
     local msg=${1:-"Unknown Error"}
 
     [[ -n "$1" ]] && shift
@@ -291,4 +290,27 @@ trim() {
     else
         echo -e "${string}" | sed -e 's/^[[:space:]]*//' | sed -e 's/[[:space:]]*$-//'
     fi
+}
+#
+# sourceFile
+#
+sourceFile() {
+	local file="${1}"
+
+	[[ -z "$file" ]] && errorExit "sourceFile :: Empty Argument!"
+	[[ ! -f "$file" ]] && errorExit "sourceFile :: File '$file' Not Found!" || source "$file"
+}
+#
+# require - load an array of filenames as dependencies for a script
+#
+require() {
+	local FILES="${1}"
+
+	[[ -z "${1}" ]] && errorExit "require :: FILES Array Not Passed!"
+	[[ "${#FILES[@]}" -eq 0 ]] && errorExit "require :: FILES Array is Empty!"
+
+	for i in "${!FILES[@]}"
+	do
+		sourceFile "${FILES[$i]}"
+	done
 }
