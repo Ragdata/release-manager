@@ -1,0 +1,80 @@
+{
+    "name": "angular",
+    "description": "Project Description",
+    "version": "0.1.0",
+    "std_version": "0.1.0",
+    "prefix": "v-",
+    "extends": "",
+    "license": "License Type",
+    "git": {
+        "user": {
+            "name": "user_name",
+            "email": "user_email"
+        },
+        "branches": {
+            "prod": "master",
+            "patch": "hotfix/.*",
+            "release": "release/.*"
+        },
+        "message": "build(release): release version "
+    },
+    "files": [],
+    "changelog": {
+        "template": {
+            "markdown": "changelog.md",
+            "json": "changelog.json"
+        }
+    },
+    "types": {
+        "list": [
+            "build",
+            "chore",
+            "docs",
+            "feat",
+            "fix",
+            "perf",
+            "refactor",
+            "revert",
+            "style",
+            "test"
+        ],
+        "logged": [
+            {
+                "type": "feat",
+                "section": "Features",
+                "icon": "\uD83D\uDCA1"
+            },
+            {
+                "type": "fix",
+                "section": "Bug Fixes",
+                "icon": "\uD83D\uDC1E"
+            },
+            {
+                "type": "perf",
+                "section": "Improvements",
+                "icon": "\uD83D\uDD2E"
+            },
+            {
+                "type": "style",
+                "section": "Styling",
+                "icon": "✨"
+            },
+            {
+                "type": "docs",
+                "section": "Documentation",
+                "icon": "\uD83D\uDCD8"
+            }
+        ]
+    },
+    "homepage": "Homepage URL",
+    "repository": {
+        "label": "Repository Label",
+        "url": "Repository URL"
+    },
+    "author": {
+        "name": "Author Name",
+        "email": "Author Email",
+        "url": "Author URL"
+    },
+    "support": {}
+}

@@ -1,0 +1,242 @@
+#!/usr/bin/env bash
+# shellcheck disable=SC2154,SC2015
+# ==================================================================
+# release
+# ==================================================================
+# Release Manager - Automated Release & Deployment Bot
+#
+# File:         release
+# Author:       Ragdata
+# Date:         07/01/2023
+# License:      MIT License
+# Copyright:    Copyright © 2022-2023 Darren Poulton (Ragdata)
+# ==================================================================
+# Bumps version, creates changelog, tags, and release.
+# Usage:
+#   ./release <arg>
+# ==================================================================
+# REQUIREMENTS
+# ==================================================================
+# Ensure the following packages are installed:
+#   - git
+#   - jq
+#   - release-version
+# ==================================================================
+set -e
+
+if [[ -f "$BB_LIB/rm-loader" ]]; then
+    source "$BB_LIB/rm-loader"
+elif [[ -f "$RM_LIB/functions.lib" ]]; then
+    source "$RM_LIB/functions.lib"
+    source "$RM_LIB/log.lib"
+else
+    echo "release :: Dependencies Not Found!"
+    exit 1
+fi
+
+VERSION="0.1.0"
+
+set -a allexport
+# load config file
+[[ -f ".env" ]] && source ".env" || source ".env.dist"
+set +a allexport
+
+TAG=""
+TYPE=""
+
+TOOLS=(
+    "git"
+    "jq"
+    "release-version"
+)
+
+help() {
+    echo
+    echo "A script to release a new version of a project"
+    echo
+    echo "Usage:"
+    echo
+    echo "      ./release <arg>"
+    echo
+    echo "Options:"
+    echo "      -T, --type  <type>      [preview|prerelease|first|patch|minor|major|version]"
+    echo "      -t, --tag   <tag>       [X.X.X[-alpha|beta|...[.X]]]"
+    echo "      -h, --help              Shows this help text"
+    echo "      -v, --version           Displays current version"
+    echo
+}
+
+checkGit() {
+    if [[ -n $(git status . -s) ]]; then
+        echo "ERROR: Commit the staged files first, then run this command again"
+        exit 1
+    fi
+
+    WORKING_BRANCH="$(git branch --show-current)"
+    PRODUCT_BRANCH=$(jq -r '.git.branches.prod' "$cfgFile")
+
+    if ! git branch -a | grep -q "remotes/origin/HEAD -> origin/$PRODUCT_BRANCH"; then
+        git symbolic-ref refs/remotes/origin/HEAD refs/remotes/origin/"$PRODUCT_BRANCH";
+    fi
+
+    STAGING_BRANCH="$(git symbolic-ref refs/remotes/origin/HEAD | sed 's@^refs/remotes/origin/@@')"
+
+    if [[ "$WORKING_BRANCH" != "$STAGING_BRANCH" && ! "$WORKING_BRANCH" =~ $PATCH_REGEX ]]; then
+        echo "ERROR: Please run on the master branch or patch branches"
+        exit 1
+    fi
+}
+
+check() {
+    for i in "${!FILES[@]}"; do
+        checkSrc "${FILES[$i]}"
+    done
+
+    for i in "${!TOOLS[@]}"; do
+        checkCmd "${TOOLS[$i]}"
+    done
+}
+
+bumpFile() {
+    for i in "${!FILES[@]}"; do
+        if [[ -f "${FILES[$i]}" ]]; then
+            sed -i "s/v[[:digit:]]\+\.[[:digit:]]\+\.[[:digit:]]\+/v$1/" "${FILES[$i]}"
+        fi
+    done
+}
+
+bump() {
+    bumpFile "$1"
+
+    if [[ "$TYPE" != "preview" && -n $(git status . -s) ]]; then
+        if [[ -z "$MESSAGE" ]]; then MESSAGE="chore(release): release $1"; else MESSAGE="$MESSAGE $1"; fi
+        git add .
+        git commit -m "$MESSAGE"
+    fi
+}
+
+standardVersion() {
+    [[ -n "$TAG" ]] && OUTTAG="-t $TAG" || OUTTAG=""
+    source "release-version" "-T $TYPE" "$OUTTAG"
+}
+
+standardVersionPlus() {
+    temp_branch="master-mirror"
+    temp_dir="$(mktemp -d)"
+
+    git checkout -b "$temp_branch" "$PROD_BRANCH"
+    git merge --no-ff --no-edit "$STAGING_BRANCH"
+
+    standardVersion "${1}"
+
+    cp package.json CHANGELOG.md "$temp_dir"
+
+    git checkout "$STAGING_BRANCH"
+    git reset --hard HEAD           # undo changes from temp_branch
+    mv "$temp_dir"/* .              # rewrite the changelog
+
+    # clean up the temp stuff
+    rm -rf "$temp_dir"
+    git branch -D "$temp_branch"
+}
+
+release() {
+    _version="$1"
+
+    git checkout "$PROD_BRANCH"
+    git merge --no-ff --no-edit "$WORKING_BRANCH"
+
+    # create a new tag on production branch
+    echo -e "Create tag v$_version\n"
+    git tag "v$_version"
+
+    # merge from patch branch to the staging branch
+    # NOTE: This may break if conflicted and may require manual intervention
+    if [[ "$WORKING_BRANCH" == "$PATCH_STUB" ]]; then
+        git checkout "$STAGING_BRANCH"
+        git merge --no-ff --no-edit "$WORKING_BRANCH"
+        git branch -D "$WORKING_BRANCH"
+    fi
+}
+
+main() {
+    check
+
+    if [[ "$TYPE" == "preview" ]]; then
+        TYPE="prerelease"
+        [[ -z "$TAG" ]] && TAG="rc"
+    fi
+
+    standardVersionPlus "${TYPE}" "${TAG}"
+
+    # change heading of patch version to level 2 (a bug from `standard-version`)
+    sed -i "s/^### \[/## \[/g" "$BB_DIR"/CHANGELOG.md
+
+    _version="$(grep '"version":' package.json | sed 's/.*: "//;s/".*//')"
+
+    echo -e "Bump version number to $_version\n"
+    bump "$_version"
+
+    if [[ "$TYPE" == "preview" ]]; then
+        # undo all changes on git
+        git reset --hard && git clean -fd
+    else
+        release "$_version"
+    fi
+}
+
+options=$(getopt -l "type:tag:,help,version" -o "T:t:hv" -a -- "$@")
+
+eval set --"$options"
+
+while true
+do
+    case $1 in
+        -T|--type)
+            case $2 in
+                preview)
+                    TYPE="preview"
+                    ;;
+                prerelease)
+                    TYPE="prerelease"
+                    ;;
+                first)
+                    TYPE="first"
+                    ;;
+                patch)
+                    TYPE="patch"
+                    ;;
+                minor)
+                    TYPE="minor"
+                    ;;
+                major)
+                    TYPE="major"
+                    ;;
+                version)
+                    TYPE="version"
+                    ;;
+                --)
+                    break;;
+                *)
+                    errorExit "release :: Invalid Argument";;
+            esac
+            shift
+            ;;
+        -t|--tag)
+            TAG="$2"
+            ;;
+        -h|--help)
+            help
+            exit 0;;
+        -v|--version)
+            echo "$VERSION"
+            exit 0;;
+        --)
+            break;;
+        *)
+            errorExit "release :: Invalid Argument";;
+    esac
+    shift
+done
+
+main

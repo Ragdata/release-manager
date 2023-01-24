@@ -1,0 +1,13 @@
+.idea/
+.path
+.releaserc
+
+log/
+log/*
+test-file
+scratch-file
+
+composer.lock
+package-lock.json
+vendor/
+node_modules/
