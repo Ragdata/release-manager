@@ -17,6 +17,7 @@ BB_FILES=(
     "bb-common/bb-regex"
     "bb-common/bb-functions/arrays.func"
     "bb-common/bb-functions/files.func"
+    "bb-common/bb-functions/include.func"
     "bb-common/bb-functions/stdout.func"
     "bb-common/bb-functions/env.func"
     "bb-common/bb-functions/strings.func"
