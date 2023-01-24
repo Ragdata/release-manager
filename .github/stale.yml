@@ -4,10 +4,10 @@ daysUntilStale: 30
 daysUntilClose: 7
 # Issues with these labels will never be considered stale
 exemptLabels:
-    - "🔴"
-    - "🟠"
-    - "🟡"
-    - "🟢"
+    - "pri: 🔴"
+    - "pri: 🟠"
+    - "pri: 🟡"
+    - "pri: 🟢"
     - "can't replicate ❌"
     - 'duplicate ❌'
     - "won't fix ❌"

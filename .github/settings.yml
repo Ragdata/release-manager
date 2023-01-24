@@ -131,23 +131,23 @@ labels:
       color: "#C2E0C6"
       description: Stale Issue
 
-    - name: '🔴'
+    - name: 'pri: 🔴'
       color: "#B60205"
       description: Priority Critical
 
-    - name: '🟠'
+    - name: 'pri: 🟠'
       color: "#D93F0B"
       description: Priority High
 
-    - name: '🟡'
+    - name: 'pri: 🟡'
       color: "#FBCA04"
       description: Priority Medium
 
-    - name: '🟢'
+    - name: 'pri: 🟢'
       color: "#0E8A16"
       description: Priority Low
 
-    - name: '🔵'
+    - name: 'pri: 🔵'
       color: "#c5def5"
       description: Priority None
 
