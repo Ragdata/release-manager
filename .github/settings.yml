@@ -43,127 +43,127 @@ repository:
 # Labels: define labels for Issues and Pull Requests
 labels:
 
-    - name: 'website 🌐'
+    - name: 'website'
       color: "#0052CC"
       description: Website Tasks
 
-    - name: 'support 🎫'
+    - name: 'support'
       color: "#d876e3"
       description: Support Question
 
-    - name: 'show & tell 🧸'
+    - name: 'show & tell'
       color: "#FEF2C0"
       description: Show & Tell - The ONLY place you can legally post links to your shit in this community
 
-    - name: 'Q&A ❤️'
+    - name: 'Q&A'
       color: "#E99695"
       description: Q&A Thread
 
-    - name: 'poll 📋'
+    - name: 'poll'
       color: "#C2E0C6"
       description: A Poll
 
-    - name: 'idea 💡'
+    - name: 'idea'
       color: "#FEF2C0"
       description: Idea / Suggestion
 
-    - name: 'announcement 📣'
+    - name: 'announcement'
       color: "#F9D0C4"
       description: A broadcast message for everyone's attention
 
-    - name: 'chore 🚧'
+    - name: 'chore'
       color: "#D93F0B"
       description: Work that needs to happen
 
-    - name: 'bug 🐞'
+    - name: 'bug'
       color: "#ff0000"
       description: Something isn't working
 
-    - name: 'discussion 💬'
+    - name: 'discussion'
       color: "#cfd3d7"
       description: Discussion Thread
 
-    - name: 'enhancement 🔥'
+    - name: 'enhancement'
       color: "#D93F0B"
       description: Discussion Thread
 
-    - name: 'style ✨'
+    - name: 'style'
       color: "#006B75"
       description: Discussion Thread
 
-    - name: 'refactor 🔩'
+    - name: 'refactor'
       color: "#000000"
       description: Discussion Thread
 
-    - name: 'docs 📘'
+    - name: 'docs'
       color: "#0075ca"
       description: Improvements or additions to documentation
 
-    - name: 'epic 📌'
+    - name: 'epic'
       color: "#7057ff"
       description: Work unit containing sub-tasks
 
-    - name: 'feature 🚩'
+    - name: 'feature'
       color: "#00ff00"
       description: New feature or request
 
-    - name: 'question ❓'
+    - name: 'question'
       color: "#d876e3"
       description: Support Question
 
-    - name: 'request 🎱'
+    - name: 'request'
       color: "#FBCA04"
       description: Feature request or suggestion
 
-    - name: 'requires response ⏰'
+    - name: 'requires response'
       color: "#B60205"
       description: Response required by admin
 
-    - name: 'good first issue 🏆'
+    - name: 'good first issue'
       color: "#0052CC"
       description: Good first issue for new contributor
 
-    - name: 'help wanted 🚨'
+    - name: 'help wanted'
       color: "#B60205"
       description: Extra attention is required
 
-    - name: 'stale 💤'
+    - name: 'stale'
       color: "#C2E0C6"
       description: Stale Issue
 
-    - name: 'pri: 🔴'
+    - name: 'critical'
       color: "#B60205"
       description: Priority Critical
 
-    - name: 'pri: 🟠'
+    - name: 'high'
       color: "#D93F0B"
       description: Priority High
 
-    - name: 'pri: 🟡'
+    - name: 'medium'
       color: "#FBCA04"
       description: Priority Medium
 
-    - name: 'pri: 🟢'
+    - name: 'low'
       color: "#0E8A16"
       description: Priority Low
 
-    - name: 'pri: 🔵'
+    - name: 'none'
       color: "#c5def5"
       description: Priority None
 
-    - name: "can't replicate ❌"
+    - name: "can't replicate"
       color: "#D4C5F9"
       description: "STATUS: CLOSED"
 
-    - name: 'duplicate ❌'
+    - name: 'duplicate'
       color: "#D4C5F9"
       description: "STATUS: CLOSED"
 
-    - name: "won't fix ❌"
+    - name: "won't fix"
       color: "#D4C5F9"
       description: "STATUS: CLOSED"
 
-    - name: 'DONE ✅'
+    - name: 'DONE'
       color: "#0E8A16"
       description: "STATUS: DONE"
 
