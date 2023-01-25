@@ -37,6 +37,21 @@ rmInstall() {
         fi
     fi
 
+    if ! what -q jo; then
+        while [[ $IJO =~ $RESP ]]
+        do
+            echo "This package requires JO"
+            echo -en "Would you like to install it now? ${DEFAULT_Y} "
+            read -n 1 -r IJO
+            [[ -z $IJO ]] && IJO="Y"
+        done
+        if [[ $IJO =~ $AFFIRM ]]; then
+            if sudo apt install -y jo; then echo "JO Installed!"; else errorExit "ERROR :: JO Not Installed!"; fi
+        else
+            errorExit "Cannot proceed without jo installed.  Please install jo and try again."
+        fi
+    fi
+
     if ! what -q jq; then
         while [[ $IJQ =~ $RESP ]]
         do
@@ -52,18 +67,19 @@ rmInstall() {
         fi
     fi
 
-    if ! what -q jo; then
-        while [[ $IJO =~ $RESP ]]
+    if ! what -q yq; then
+        while [[ $IYQ =~ $RESP ]]
         do
-            echo "This package requires JO"
+            echo "This package requires YQ"
             echo -en "Would you like to install it now? ${DEFAULT_Y} "
-            read -n 1 -r IJO
-            [[ -z $IJO ]] && IJO="Y"
+            read -n 1 -r IYQ
+            [[ -z $IYQ ]] && IYQ="Y"
         done
-        if [[ $IJO =~ $AFFIRM ]]; then
-            if sudo apt install -y jo; then echo "JO Installed!"; else errorExit "ERROR :: JO Not Installed!"; fi
+        if [[ $IYQ =~ $AFFIRM ]]; then
+			wget https://github.com/mikefarah/yq/releases/download/${VERSION}/${BINARY}.tar.gz -O -
+			tar xz && mv ${BINARY} /usr/bin/yq
         else
-            errorExit "Cannot proceed without jo installed.  Please install jo and try again."
+            errorExit "Cannot proceed without jq installed.  Please install jq and try again."
         fi
     fi
 
