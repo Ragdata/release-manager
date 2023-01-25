@@ -25,31 +25,7 @@ jobs:
             - name: Checkout
               uses: actions/checkout@v3
 
-            - name: Setup Paths
-              run: |
-                [[ ! -d log ]] && mkdir -p log
-
-            - name: Run ShellCheck
-              uses: ludeeus/action-shellcheck@master
-              id: check
-              env:
-                  SHELLCHECK_OPTS: -e SC2154 -e SC2015 -e SC2015 -e SC2034 -e SC2094 -e SC1090
+            - name: Lint
+              uses: azohra/shell-linter@latest
               with:
-                  additional_files: rm-config src/bin/rm-install src/etc/release-version src/lib/functions.lib src/lib/log.lib src/lib/rm-loader
-                  ignore_paths: cfg inc log src/etc/release src/etc/release-action
-                  format: json1
-
-            - name: Verify Check
-              run: |
-                expect="test/scandir/run"
-
-                if [[ ! "${{ steps.check.outputs.files }}" =~ test/scandir/run ]]; then
-                    echo "::error:: Expected file test/scandir/run not found in ${{ steps.check.outputs.files }}"
-                    exit 1
-                elif [[ ! "${{ steps.check.outputs.files }}" =~ test/scandir/finish ]]; then
-                    echo "::error:: Expected file test/scandir/finish not found in ${{ steps.check.outputs.files }}"
-                    exit 1
-                elif [[ ! "${{ steps.check.outputs.files }}" =~ test/scandir/discover ]]; then
-                    echo "::error:: Expected file test/scandir/discovery not found in ${{ steps.check.outputs.files }}"
-                    exit 1
-                fi
+                  exclude-paths: "log" "inc" "cfg" "src/etc/release" "src/etc/release-action"
