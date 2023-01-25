@@ -34,7 +34,6 @@ INCFILES=(
 )
 
 [[ -f ".path" ]] && source "$RM_REPO/.path" || source "$RM_REPO/.path.dist"
-[[ -f ".env" ]] && source "$RM_REPO/.env" || source "$RM_REPO/.env.dist"
 
 for i in "${!INCFILES[@]}"
 do
