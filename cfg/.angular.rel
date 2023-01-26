@@ -76,5 +76,6 @@
         "email": "Author Email",
         "url": "Author URL"
     },
-    "support": {}
+    "support": {},
+	"dependencies": {}
 }

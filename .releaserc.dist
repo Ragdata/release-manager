@@ -1,0 +1,55 @@
+{
+    "name": "project-name",
+    "description": "Project Description",
+    "version": "0.1.0",
+    "extends": "angular",
+    "license": "MIT",
+    "git": {
+        "user": {
+            "name": "USER_NAME",
+            "email": "USER_EMAIL"
+        }
+    },
+    "files": [
+        "package.json",
+        "README.md",
+        "COPYRIGHT"
+    ],
+    "homepage": "HOMEPAGE_URL",
+    "repository": {
+        "label": "REPO_LABEL",
+        "url": "REPO_URL"
+    },
+    "author": {
+        "name": "AUTHOR_NAME",
+        "email": "AUTHOR_EMAIL",
+        "url": "AUTHOR_URL"
+    },
+    "support": {
+        "issues": {
+            "label": "LABEL",
+            "url": "URL"
+        },
+        "discussions": {
+            "label": "LABEL",
+            "url": "URL"
+        }
+    },
+	"dependencies": {
+		"git": {
+			"name": "Git",
+			"check": "what git",
+			"install": "sudo apt install -y git"
+		},
+		"yq": {
+			"name": "YQ",
+			"check": "what yq",
+			"install": "wget https://github.com/mikefarah/yq/releases/download/4.30.8/yq_linux_amd64.tar.gz -O - | tar xz && mv yq_linux_amd64 /usr/bin/yq"
+		},
+		"moreutils": {
+			"name": "MoreUtils",
+			"check": "what sponge",
+			"install": "sudo apt install -y moreutils"
+		}
+	}
+}
