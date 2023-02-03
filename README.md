@@ -116,7 +116,7 @@ sudo config install
 
 While `Release Manager` follows good security practices, 100% security can never be guaranteed in any software package.  `Release Manager` is provided AS IS, and without warranty. You can find more details in the [LICENSE](LICENSE) file included with this repository.
 
-If you discover any issue regarding the security of this project, please disclose the information responsibly by sending an email to mailto:security@ragdata.dev.  Please DO NOT create an Issue in the project's Issue Register.  You can read more about the project's security policies [HERE](.github/SECURITY.md) 
+If you discover any issue regarding the security of this project, please disclose the information responsibly by sending an email to mailto:security@ragdata.dev.  Please DO NOT create an Issue in the project's Issue Register.  You can read more about the project's security policies [HERE](https://github.com/Ragdata/release-manager/security/policy) 
 
 [`^ Top`](#-project-overview)
 
@@ -157,7 +157,7 @@ Created with ☕ by Ragdata</a>
 
 ## 💎 Contributors
 
-If you'd like to make a contribution of code, then please see my [Contributor's Guidelines](.github/CONTRIBUTING.md)
+If you'd like to make a contribution of code, then please see my [Contributor's Guidelines](https://github.com/Ragdata/.github/blob/master/.github/CONTRIBUTING.md)
 
 It's not just code that I'm looking for though.  If you have any ideas or suggestions about how this project may be improved, don't hesitate to [open an Issue](https://github.com/ragdata/release-manager/issues) and let me know!  Contributions of ALL kinds will be recognised here if they are made a part of this project.
 
