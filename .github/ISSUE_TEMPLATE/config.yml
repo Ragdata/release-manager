@@ -1,0 +1,14 @@
+blank_issues_enabled: true
+contact_links:
+
+    - name: Start a Discussion
+      url: https://github.com/ragdata/release-manager/discussions/new/choose
+      about: Start a new discussion topic to ask a question or get support
+
+    - name: Ragdata's Dev Site
+      url: https://ragdata.dev
+      about: Details & Docs for Ragdata's Public Projects
+
+    - name: Security Report Email
+      email: security@ragdata.dev
+      about: For reports of SERIOUS Security Flaws ONLY
