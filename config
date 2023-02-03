@@ -1,1 +1,13 @@
 #!/usr/bin/env bash
+#
+# ==================================================================
+# config
+# ==================================================================
+# Release Manager - Automated Release & Deployment Bot
+#
+# File:         config
+# Author:       Ragdata
+# Date:         04/02/2023
+# License:      MIT License
+# Copyright:    Copyright © 2023 Darren (Ragdata) Poulton
+# ==================================================================
