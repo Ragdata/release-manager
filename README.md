@@ -1,4 +1,7 @@
 <h1 align="center">
+<!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
+[![All Contributors](https://img.shields.io/badge/all_contributors-1-orange.svg?style=flat-square)](#contributors-)
+<!-- ALL-CONTRIBUTORS-BADGE:END -->
 
 <img src="https://raw.githubusercontent.com/Ragdata/Ragdata/master/images/logo/banner/RM-800x400.png" alt="Release Manager" />
 
@@ -22,6 +25,10 @@ Includes Command-Line & GitHub Actions Versions
 </h3>
 
 <h4 align="center">Requires Bash4+ & Ubuntu Linux</h4>
+
+<!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
+[![All Contributors](https://img.shields.io/badge/all_contributors-1-orange.svg?style=flat-square)](#contributors-)
+<!-- ALL-CONTRIBUTORS-BADGE:END -->
 
 > Please help me increase signal strength on this repo - give it a ⭐
 
@@ -213,11 +220,11 @@ Connect with my Social Channels
 
 ## 💎 [Contributors](#-table-of-contents)
 
-If you'd like to make a contribution of code, then please see my [Contributor's Guidelines](https://github.com/Ragdata/.github/blob/master/.github/CONTRIBUTING.md)
+If you'd like to make a contribution of code, then please see my [**Contributor's Guidelines**](https://github.com/Ragdata/.github/blob/master/.github/CONTRIBUTING.md)
 
-It's not just code that I'm looking for though.  If you have any ideas or suggestions about how this project may be improved, don't hesitate to [open an Issue](https://github.com/ragdata/release-manager/issues) and let me know!  Contributions of ALL kinds will be recognised here if they are made a part of this project.
+It's not just code that I'm looking for though.  If you have any ideas or suggestions about how this project may be improved, don't hesitate to [**open an Issue**](https://github.com/ragdata/release-manager/issues) and let me know!  Because this project follows the [**all-contributors**](https://github.com/all-contributors/all-contributors) specification, contributions of ALL kinds will be recognised here if they are made a part of this project.
 
-[View All Contributors][all-contributors]
+#### [View All Contributors][all-contributors]
 
 
 [`^ Top`](#-table-of-contents)

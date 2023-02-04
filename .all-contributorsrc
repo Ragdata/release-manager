@@ -3,12 +3,12 @@
 	"projectOwner": "Ragdata",
 	"repoType": "github",
 	"repoHost": "https://github.com",
-	"files": ["CONTRIBUTORS.md"],
+	"files": ["CONTRIBUTORS.md","README.md"],
 	"imageSize": 100,
-	"commit": false,
+	"commit": true,
 	"commitConvention": "angular",
 	"contributorsPerLine": 7,
-	"skipCi": true,
+	"linkToUsage": true,
 	"types": {
 		"bug": {
 			"symbol": "\uD83D\uDC1E",
@@ -23,33 +23,21 @@
 			"avatar_url": "https://avatars.githubusercontent.com/u/6827931?v=4",
 			"profile": "https://ragdata.dev/",
 			"contributions": [
-				"blog",
 				"business",
 				"code",
 				"content",
-				"data",
 				"doc",
 				"design",
-				"example",
 				"financial",
-				"fundingFinding",
 				"ideas",
 				"infra",
 				"maintenance",
-				"mentoring",
-				"platform",
 				"projectManagement",
 				"promotion",
-				"question",
-				"research",
-				"review",
 				"security",
 				"tool",
 				"test",
-				"tutorial",
-				"talk",
-				"userTesting",
-				"video"
+				"talk"
 			]
 		}
 	]
