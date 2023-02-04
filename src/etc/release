@@ -13,12 +13,65 @@
 # ==================================================================
 # Release Manager Executable
 # ==================================================================
+set -e
+#-------------------------------------------------------------------
+# DEPENDENCIES
+#-------------------------------------------------------------------
+if [ -d /opt/bb ]; then source "$RM_LIB/rm-loader"; else source "$RM_LIB/functions"; source "$RM_LIB/log"; fi
+#-------------------------------------------------------------------
+# VARIABLES
+#-------------------------------------------------------------------
+declare -Agx PROFILE
+
+PROFILE["STARTTIME"]="$(date +%s.%N)"
+
+declare -gx WORKING_BRANCH
+declare -gx STAGING_BRANCH
+declare -gx PRODUCT_BRANCH
 
 #-------------------------------------------------------------------
 # FUNCTIONS
 #-------------------------------------------------------------------
 
+help() {
+	echo
+}
 
 #-------------------------------------------------------------------
 # MAIN
 #-------------------------------------------------------------------
+
+OPTIONS=$(getopt -l "update,uninstall,type:,help" -o "unt:h" -a -- "$@")
+
+eval set --"$OPTIONS"
+
+while true
+do
+	case $1 in
+		-u|--update)
+			source "$RM_LIB/rm-install"
+			rmUpdate
+			;;
+		-n|--uninstall)
+			source "$RM_LIB/rm-install"
+			rmUninstall
+			;;
+		-t|--type)
+			case $2 in
+
+			esac
+			;;
+		-h|--help)
+			help
+			exit 0
+			;;
+		--)
+			help
+			exit 1
+			;;
+		*)
+			errorExit "release :: Invalid Argument"
+			;;
+	esac
+	shift
+done
