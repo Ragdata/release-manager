@@ -1,1 +1,42 @@
 #!/usr/bin/env bash
+# shellcheck disable=SC1090
+# ==================================================================
+# lib/bb/rm-loader
+# ==================================================================
+# Bash Bits - Modular Bash Library
+#
+# File:         lib/bb/rm-loader
+# Author:       Ragdata
+# Date:         04/02/2023
+# License:      MIT License
+# Copyright:    Copyright © 2022-2023 Darren (Ragdata) Poulton
+# ==================================================================
+# Loads Bash Bits into Release Manager if available
+# ==================================================================
+
+#-------------------------------------------------------------------
+# VARIABLES
+#-------------------------------------------------------------------
+BB_FILES=(
+    "bb-common/bb-ansi"
+    "bb-common/bb-regex"
+    "bb-common/bb-functions/arrays.func"
+    "bb-common/bb-functions/files.func"
+    "bb-common/bb-functions/include.func"
+    "bb-common/bb-functions/stdout.func"
+    "bb-common/bb-functions/env.func"
+    "bb-common/bb-functions/strings.func"
+    "bb-common/bb-functions/utility.func"
+)
+#-------------------------------------------------------------------
+# MAIN
+#-------------------------------------------------------------------
+for i in "${!BB_FILES[@]}"
+do
+    if [[ -f "$BB_LIB/${BB_FILES[$i]}" ]]; then
+        source "$BB_LIB/${BB_FILES[$i]}"
+    else
+        echo "Bash-Bits :: File '${BB_FILES[$i]}' Not Found!"
+        exit 1
+    fi
+done
