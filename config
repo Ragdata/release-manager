@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-#
+# shellcheck disable=SC2034,SC1090
 # ==================================================================
 # config
 # ==================================================================
@@ -11,3 +11,100 @@
 # License:      MIT License
 # Copyright:    Copyright © 2023 Darren (Ragdata) Poulton
 # ==================================================================
+
+set -e
+
+ACTION="${1:-}"
+
+export RM_REPO="$PWD"
+
+INC_FILES=(
+	"$RM_REPO/src/bin/rm-install"
+	"$RM_REPO/src/lib/rm/functions"
+	"$RM_REPO/src/lib/rm/log"
+)
+
+[[ -f ".path" ]] && source "$RM_REPO/.path" || source "$RM_REPO/.path.dist"
+
+for i in "${!INC_FILES[@]}"
+do
+	filePath="${INC_FILES[$i]}"
+	if [[ -f "$filePath" ]]; then source "$filePath"; else echo "ERROR :: File '$filePath' Not Found!"; fi
+done
+
+if [[ "${BASH_VERSION:0:1}" -lt 4 ]]; then
+    echo "This script requires a minimum Bash version of 4+!"
+    exit 1
+fi
+if [[ "$EUID" -ne 0 ]]; then
+    echo "This script MUST be run as root! (sudo ./bb-config)"
+    exit 1
+fi
+
+[ "$SUDO_USER" ] && user=$SUDO_USER || user=$(whoami)
+
+help() {
+	cat << EOF
+
+A small helper script to install Release Manager onto a Linux server
+
+Usage:
+
+	bash config <action>
+
+Actions:
+
+	help						Display this help information
+	setup						Prepare the environment for installation
+	install						Install Release Manager
+	update						Update Release Manager
+
+EOF
+}
+
+setup() {
+	clear
+    echo "Release Manager Configuration"
+    echo
+    echo "Configuring Global Environment Variables"
+
+    [[ ! -f "$RM_REPO/.path" ]] && install -m 644 -g "$user" -o "$user" "$RM_REPO/.path.dist" "$RM_REPO/.path"
+
+    echo "export RM_REPO=$(pwd)" >> "$RM_REPO/.path"
+
+    echo "export PATH=$RM_LIB:$RM_BIN:$ETC:$PATH" >> "$RM_REPO/.path"
+
+    install -m 644 -g root -o root --backup=simple "$RM_REPO/.path" /etc/profile.d/rm-path.sh
+
+    cp /etc/environment /etc/environment~
+
+    file2Env "$RM_REPO/.path" "release"
+
+    echo
+    echo "DONE!"
+    echo
+    echo "In order to complete configuration, you need to close this session and login again"
+    echo
+}
+
+#-------------------------------------------------------------------
+# MAIN
+#-------------------------------------------------------------------
+
+case $ACTION in
+	help)
+		help
+		;;
+	setup)
+		setup
+		;;
+	install)
+		rmInstall
+		;;
+	update)
+		rmUpdate
+		;;
+	*)
+		errorExit "Invalid Action '$ACTION'"
+		;;
+esac
