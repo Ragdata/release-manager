@@ -2,7 +2,7 @@
 
 <img src="https://raw.githubusercontent.com/Ragdata/Ragdata/master/images/logo/banner/RM-800x400.png" alt="Release Manager" />
 
-[Release Manager v-0.1.0](https://github.com/ragdata/release-manager/releases)
+[Release Manager v-1.0.0](https://github.com/ragdata/release-manager/releases)
 </h1>
 
 <h3 align="center"><em>
@@ -22,6 +22,9 @@ Includes Command-Line & GitHub Actions Versions
 </h3>
 
 <h4 align="center">Requires Bash4+ & Ubuntu Linux</h4>
+
+> Please help me increase signal strength on this repo - give it a ⭐
+
 
 ## 📖 Table of Contents
 
@@ -137,6 +140,12 @@ Kick off the automatic installer with this simple command:
 sudo config install
 ```
 
+... or if you've already installed the package and only need to update:
+
+```shell
+sudo config update
+```
+
 [`^ Top`](#-table-of-contents)
 
 
@@ -207,6 +216,8 @@ Connect with my Social Channels
 If you'd like to make a contribution of code, then please see my [Contributor's Guidelines](https://github.com/Ragdata/.github/blob/master/.github/CONTRIBUTING.md)
 
 It's not just code that I'm looking for though.  If you have any ideas or suggestions about how this project may be improved, don't hesitate to [open an Issue](https://github.com/ragdata/release-manager/issues) and let me know!  Contributions of ALL kinds will be recognised here if they are made a part of this project.
+
+[View All Contributors][all-contributors]
 
 
 [`^ Top`](#-table-of-contents)
@@ -302,3 +313,4 @@ Find out more on my [**Sponsor's Page**][sponsors]
 [project-site]: https://release-manager.ragdata.dev
 [sponsors]: https://github.com/sponsors/ragdata
 [commit-types]: https://kapeli.com/cheat_sheets/Conventional_Commits.docset/Contents/Resources/Documents/index
+[all-contributors]: CONTRIBUTORS.md
