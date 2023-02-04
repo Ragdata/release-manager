@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# shellcheck disable=SC2034,SC1090
+# shellcheck disable=SC2034,SC1090,SC2015
 # ==================================================================
 # config
 # ==================================================================
@@ -11,20 +11,27 @@
 # License:      MIT License
 # Copyright:    Copyright © 2023 Darren (Ragdata) Poulton
 # ==================================================================
+# Project Configurator - A tool to setup, install, and update Release Manager
+# ==================================================================
 
 set -e
 
-ACTION="${1:-}"
-
 export RM_REPO="$PWD"
 
+export REPO_CFG="$RM_REPO/cfg"
+export REPO_INC="$RM_REPO/inc"
+export REPO_BIN="$RM_REPO/src/bin"
+export REPO_ETC="$RM_REPO/src/etc"
+export REPO_LIB="$RM_REPO/src/lib"
+
+
 INC_FILES=(
-	"$RM_REPO/src/bin/rm-install"
-	"$RM_REPO/src/lib/rm/functions"
-	"$RM_REPO/src/lib/rm/log"
+	"$REPO_BIN/rm-install"
+	"$REPO_LIB/rm/functions"
+	"$REPO_LIB/rm/log"
 )
 
-[[ -f ".path" ]] && source "$RM_REPO/.path" || source "$RM_REPO/.path.dist"
+[[ -f "$RM_REPO/.path" ]] && source "$RM_REPO/.path" || source "$RM_REPO/.path.dist"
 
 for i in "${!INC_FILES[@]}"
 do
@@ -32,53 +39,74 @@ do
 	if [[ -f "$filePath" ]]; then source "$filePath"; else echo "ERROR :: File '$filePath' Not Found!"; fi
 done
 
-if [[ "${BASH_VERSION:0:1}" -lt 4 ]]; then
-    echo "This script requires a minimum Bash version of 4+!"
-    exit 1
-fi
-if [[ "$EUID" -ne 0 ]]; then
-    echo "This script MUST be run as root! (sudo ./bb-config)"
-    exit 1
-fi
+checkBash
+# checkRoot
 
 [ "$SUDO_USER" ] && user=$SUDO_USER || user=$(whoami)
+
+#-------------------------------------------------------------------
+# FUNCTIONS
+#-------------------------------------------------------------------
 
 help() {
 	cat << EOF
 
-A small helper script to install Release Manager onto a Linux server
+Project Configurator - A tool to setup, install, and update Release Manager
 
 Usage:
 
-	bash config <action>
+	config <options>
 
-Actions:
+	- or -
 
-	help						Display this help information
-	setup						Prepare the environment for installation
-	install						Install Release Manager
-	update						Update Release Manager
+	bash config <options>
+
+Options:
+
+	-h, --help						Display this help information
+	-s, --setup						Prepare the environment for installation
+	-i, --install					Install Release Manager
+	-u, --update					Update Release Manager
+	-n, --uninstall					Uninstall Release Manager
+
+Notes:
+
+	You must run this script using a NON-ROOT user
 
 EOF
 }
 
 setup() {
 	clear
-    echo "Release Manager Configuration"
+    echo "Release Manager Configurator"
     echo
     echo "Configuring Global Environment Variables"
 
     [[ ! -f "$RM_REPO/.path" ]] && install -m 644 -g "$user" -o "$user" "$RM_REPO/.path.dist" "$RM_REPO/.path"
 
+	DIRS=(
+		"$RM_BIN"
+		"$RM_LIB"
+		"$ETC"
+		"$RM_OPT"
+		"$RM_LOG"
+	)
+
     echo "export RM_REPO=$(pwd)" >> "$RM_REPO/.path"
 
     echo "export PATH=$RM_LIB:$RM_BIN:$ETC:$PATH" >> "$RM_REPO/.path"
 
-    install -m 644 -g root -o root --backup=simple "$RM_REPO/.path" /etc/profile.d/rm-path.sh
+    sudo install -m 644 -g root -o root --backup=simple "$RM_REPO/.path" /etc/profile.d/rm-path.sh
 
     cp /etc/environment /etc/environment~
 
     file2Env "$RM_REPO/.path" "release"
+
+	for dir in "${!DIRS[@]}"
+	do
+		dirName="${dir##*/}"
+		[[ ! -d "$dir" ]] && mkdir -p "$dir"
+	done
 
     echo
     echo "DONE!"
@@ -91,20 +119,35 @@ setup() {
 # MAIN
 #-------------------------------------------------------------------
 
-case $ACTION in
-	help)
-		help
-		;;
-	setup)
-		setup
-		;;
-	install)
-		rmInstall
-		;;
-	update)
-		rmUpdate
-		;;
-	*)
-		errorExit "Invalid Action '$ACTION'"
-		;;
-esac
+ACTIONS=$(getopt -l "setup,install,update,uninstall,help" -o "siunh" -a -- "$@")
+
+eval set --"$ACTIONS"
+
+while true
+do
+	case $1 in
+		-s|--setup)
+			setup
+			;;
+		-i|--install)
+			[[ ! -d /opt/rm ]] && setup
+			rmInstall
+			;;
+		-u|--update)
+			rmUpdate
+			;;
+		-n|--uninstall)
+			rmUninstall
+			;;
+		-h|--help)
+			help
+			exit 0
+			;;
+		--)
+			help
+			exit 1;;
+		*)
+			errorExit "config :: Invalid Argument";;
+	esac
+	shift
+done
