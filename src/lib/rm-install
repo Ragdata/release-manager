@@ -1,0 +1,118 @@
+#!/usr/bin/env bash
+# shellcheck disable=SC2034,SC1090,SC2015
+# ==================================================================
+# rm-install
+# ==================================================================
+# Release Manager - Automated Release & Deployment Bot
+#
+# File:         rm-install
+# Author:       Ragdata
+# Date:         04/02/2023
+# License:      MIT License
+# Copyright:    Copyright © 2023 Darren (Ragdata) Poulton
+# ==================================================================
+# Release Manager Installer Library
+# ==================================================================
+
+#-------------------------------------------------------------------
+# FUNCTIONS
+#-------------------------------------------------------------------
+
+rmLoadBBLibs() {
+	source "$REPO_LIB/bb/rm-loader"
+}
+
+rmLoadRMLibs() {
+	source "$REPO_LIB/rm/functions"
+	source "$REPO_LIB/rm/log"
+}
+
+rmLoadLibs() {
+	set -a allexport
+
+	RM_REPO="$PWD"
+	REPO_CFG="$RM_REPO/cfg"
+	REPO_INC="$RM_REPO/inc"
+	REPO_TPL="$REPO_INC/tpl"
+	REPO_BIN="$RM_REPO/src/bin"
+	REPO_ETC="$RM_REPO/src/etc"
+	REPO_LIB="$RM_REPO/src/lib"
+
+	if [ -d /opt/bb ]; then rmLoadBBLibs; else rmLoadRMLibs; fi
+
+	set +a allexport
+}
+
+rmInstall() {
+	set -eu
+
+	rmLoadLibs
+
+	clear
+
+	local LOGGING
+	local logMSG
+
+	[[ $(isLogInit) == true ]] && LOGGING=true || LOGGING=false
+
+	if [ $LOGGING == true ]; then
+		echoLog "Installing Release Manager - Changelog Generator & Packager" --color=yellow
+		echoLog "line"
+		echoLog "spacer"
+	else
+		echoYellow "Installing Release Manager - Changelog Generator & Packager"
+		echoYellow "======================================================"
+		echo
+	fi
+
+	sudo install -m 644 -g root -o root --backup=simple "$REPO_ETC/release" "$ETC/release"
+	sudo install -m 644 -g root -o root --backup=simple "$REPO_CFG/.angular.rel" "$RM_OPT/cfg/.angular.rel"
+	sudo install -m 644 -g root -o root --backup=simple "$REPO_TPL/changelog.json" "$RM_OPT/inc/tpl/changelog.json"
+	sudo install -m 644 -g root -o root --backup=simple "$REPO_TPL/changelog.md" "$RM_OPT/inc/tpl/changelog.md"
+	sudo install -m 644 -g root -o root --backup=simple "$REPO_LIB/rm-install" "$RM_LIB/rm-install"
+}
+
+rmUpdate() {
+	set -eu
+
+	rmLoadLibs
+
+	clear
+
+	[[ $(isLogInit) == true ]] && LOGGING=true || LOGGING=false
+
+	if [ $LOGGING == true ]; then
+		echoLog "Updating Release Manager - Changelog Generator & Packager" --color=yellow
+		echoLog "line"
+		echoLog "spacer"
+	else
+		echoYellow "Updating Release Manager - Changelog Generator & Packager"
+		echoYellow "======================================================"
+		echo
+	fi
+}
+
+rmUninstall() {
+	clear
+
+	sudo rm -Rf "$RM_LIB"
+	sudo rm -Rf "$RM_BIN"
+	sudo rm -f "$ETC/release"
+	sudo rm -Rf "$RM_OPT"
+	sudo rm -Rf "$RM_LOG"
+	sudo rm -f /etc/profile.d/rm-path.sh
+
+	local active=1
+	local match="# release-manager"
+
+	mv /etc/environment /etc/environment2
+	touch /etc/environment
+
+	while IFS= read -r line
+	do
+        [[ "$line" =~ $match && "$active" -eq 1 ]] && active=0
+        [[ $active -eq 1 ]] echo "$line" | sudo tee -a /etc/environment
+        [[ "$line" =~ $match && "$active" -eq 0 ]] && active=1
+	done < /etc/environment2
+	sudo rm -f /etc/environment2
+}
