@@ -1,5 +1,6 @@
 {
-    "name": "project-name",
+    "id": "project-name",
+	"prettyName": "Project Name",
     "description": "Project Description",
     "version": "0.1.0",
     "extends": "angular",
