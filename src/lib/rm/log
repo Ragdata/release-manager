@@ -430,6 +430,12 @@ logInit() {
     fi
 }
 #
+# isLogInit
+#
+isLogInit() {
+	if [ -z "$LOG" ]; then echo true; else echo false; fi
+}
+#
 # logWrite [MESSAGE] [OPTIONS]...
 #
 logWrite() {
