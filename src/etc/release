@@ -19,9 +19,13 @@ set -e
 
 trap 'errorHandler $? ${LINENO}' ERR
 #-------------------------------------------------------------------
-# DEPENDENCIES
+# INITIALIZATION
 #-------------------------------------------------------------------
-if [ -d /opt/bb ]; then source "$RM_LIB/rm-loader"; else source "$RM_LIB/functions"; source "$RM_LIB/log"; fi
+declare -gx RM_REPO="$PWD"
+
+[[ -z "$RM_LIB" ]] && source "$RM_REPO/.path" || source "$RM_REPO/.path.dist"
+
+[[ -f "$RM_LIB/rm-install" ]] && source "$RM_LIB/rm-install" || source "$RM_REPO/src/lib/rm-install"
 #-------------------------------------------------------------------
 # VARIABLES
 #-------------------------------------------------------------------
@@ -38,9 +42,9 @@ declare -gx WORKING_BRANCH
 declare -gx STAGING_BRANCH
 declare -gx PRODUCT_BRANCH
 
-declare -gx tempdir
+declare -gx TMPDIR
 
-tempdir="$(mktemp -d)"
+TMPDIR="$(mktemp -d)"
 
 declare -gx CFGDIR="$RM_OPT/cfg"
 declare -gx TMPLDIR="$RM_OPT/inc/tpl"
@@ -143,6 +147,21 @@ getConfig() {
 
 readConfig() {
 	[[ ! -f "$1" ]] && defaultConfig
+
+	[[ $LOGGING == true ]] && echoLog "Reading Configuration File ..."
+
+	local filePath="${1:-}"
+	local fileName="${filePath##*/}"
+	local tmpFile="$TMPDIR/$fileName"
+	local extends
+
+	declare -gx configFile
+
+	configFile="$tmpFile"
+
+	extends=$(yq -P '.extends' "$filePath")
+
+	echo "$extends"
 }
 
 defaultConfig() {
