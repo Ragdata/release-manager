@@ -1,5 +1,6 @@
 {
-    "name": "angular",
+    "id": "angular",
+	"prettyName": "Angular",
     "description": "Project Description",
     "version": "0.1.0",
     "std_version": "0.1.0",
@@ -21,8 +22,7 @@
     "files": [],
     "changelog": {
         "template": {
-            "markdown": "changelog.md",
-            "json": "changelog.json"
+            "markdown": "changelog.md"
         }
     },
     "types": {
@@ -149,6 +149,5 @@
         "email": "Author Email",
         "url": "Author URL"
     },
-    "support": {},
-	"dependencies": {}
+    "support": {}
 }
