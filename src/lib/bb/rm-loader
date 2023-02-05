@@ -20,13 +20,13 @@
 BB_FILES=(
     "bb-common/bb-ansi"
     "bb-common/bb-regex"
-    "bb-common/bb-functions/arrays.func"
-    "bb-common/bb-functions/files.func"
-    "bb-common/bb-functions/include.func"
-    "bb-common/bb-functions/stdout.func"
-    "bb-common/bb-functions/env.func"
-    "bb-common/bb-functions/strings.func"
-    "bb-common/bb-functions/utility.func"
+    "bb-common/bb-functions/arrays"
+    "bb-common/bb-functions/files"
+    "bb-common/bb-functions/include"
+    "bb-common/bb-functions/stdout"
+    "bb-common/bb-functions/env"
+    "bb-common/bb-functions/strings"
+    "bb-common/bb-functions/utility"
 )
 #-------------------------------------------------------------------
 # MAIN
