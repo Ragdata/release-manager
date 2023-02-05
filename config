@@ -31,6 +31,13 @@ INC_FILES=(
 	"$REPO_LIB/rm/log"
 )
 
+TOOLS=(
+	"git"
+	"yq"
+	"sponge"
+)
+
+
 [[ -f "$RM_REPO/.path" ]] && source "$RM_REPO/.path" || source "$RM_REPO/.path.dist"
 
 for i in "${!INC_FILES[@]}"
@@ -76,11 +83,96 @@ Notes:
 EOF
 }
 
+installGit() {
+	while [[ $IGIT =~ $RESP ]]
+	do
+		echo "This package requires Git"
+		echo -en "Would you like to install it now? ${DEFAULT_Y} "
+		read -n 1 -r IGIT
+		[[ -z $IGIT ]] && IGIT
+	done
+	if [[ $IGIT =~ $AFFIRM ]]; then
+		if sudo apt install -y git; then echo "Git Installed!"; else errorExit "ERROR :: Git Not Installed!"; fi
+	else
+		errorExit "Cannot proceed without git installed.  Please install Git and try again."
+	fi
+}
+
+installYq() {
+	while [[ $IYQ =~ $RESP ]]
+	do
+		echo "This package requires YQ"
+		echo -en "Would you like to install it now? ${DEFAULT_Y} "
+		read -n 1 -r IYQ
+		[[ -z $IYQ ]] && IYQ
+	done
+	if [[ $IYQ =~ $AFFIRM ]]; then
+		sudo add-apt-repository ppa:rmescandon/yq
+		sudo apt update -y
+		if sudo apt install -y yq; then echo "YQ Installed!"; else errorExit "ERROR :: YQ Not Installed!"; fi
+		yq shell-completion bash | sudo tee /etc/bash_completion.d/yq-completion.bash &> /dev/null
+		source <(yq shell-completion bash)
+	else
+		errorExit "Cannot proceed without yq installed.  Please install YQ and try again."
+	fi
+}
+
+installUtils() {
+	while [[ $IGIT =~ $RESP ]]
+	do
+		echo "This package requires MoreUtils"
+		echo -en "Would you like to install it now? ${DEFAULT_Y} "
+		read -n 1 -r IUTIL
+		[[ -z $IUTIL ]] && IUTIL
+	done
+	if [[ $IUTIL =~ $AFFIRM ]]; then
+		if sudo apt install -y git; then echo "Git Installed!"; else errorExit "ERROR :: Git Not Installed!"; fi
+	else
+		errorExit "Cannot proceed without git installed.  Please install Git and try again."
+	fi
+}
+
+installTool() {
+	case "$1" in
+		git)
+			installGit;;
+		yq)
+			installYq;;
+		sponge)
+			installUtils;;
+		*)
+			errorExit "release :: Invalid Argument"
+	esac
+}
+
+# overridden function
+checkCMD() {
+	local fail=true
+	local inst=false
+	[[ -n "$2" && "$2" == 'nofail' ]] && fail=false
+	[[ -n "$3" && "$3" == 'install' ]] && inst=true
+    if ! command -v "$1" &>/dev/null; then
+        echo "ERROR: Command '$1' Not Found!"
+        [[ "$fail" == true ]] && exit 1
+        [[ "$inst" == true ]] && installTool "$1"
+    fi
+}
+
+check() {
+	if [[ "${#TOOLS[@}" -gt 0 ]]; then
+		for i in "${!TOOLS[@]}"; do
+			checkCMD "${TOOLS[$i]}"
+		done
+	fi
+}
+
 setup() {
 	clear
     echo "Release Manager Configurator"
     echo
     echo "Configuring Global Environment Variables"
+
+    check
 
     [[ ! -f "$RM_REPO/.path" ]] && install -m 644 -g "$user" -o "$user" "$RM_REPO/.path.dist" "$RM_REPO/.path"
 

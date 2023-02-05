@@ -220,21 +220,29 @@ checkFile() {
     fi
 }
 #
-# checkSrc
+# checkSrc - checks if a particular file is accessible
+#		   - accepts an additional argument:
+#			   - "nofail" - function will not exit on failure
 #
 checkSrc() {
+	local fail=true
+	[[ -n "$2" && "$2" == 'nofail' ]] && fail=false
     if [[ ! -f "$1" && ! -d "$1" ]]; then
         echo "ERROR: Missing File '$1'!"
-        exit 1
+        [[ "$fail" == true ]] && exit 1
     fi
 }
 #
-# checkCmd
+# checkCmd - checks if a particular command can be executed
+#		   - accepts an additional argument:
+#			   - "nofail" - function will not exit on failure
 #
 checkCmd() {
+	local fail=true
+	[[ -n "$2" && "$2" == 'nofail' ]] && fail=false
     if ! command -v "$1" &>/dev/null; then
         echo "ERROR: Command '$1' Not Found!"
-        exit 1
+        [[ "$fail" == true ]] && exit 1
     fi
 }
 #
@@ -380,9 +388,9 @@ checkRoot()
     [[ "$EUID" -ne 0 ]] && errorExit "This script MUST be run as root!"
 }
 #
-# checkCMD - checks that the system has access to each of the commands listed in an array named TOOLS
+# checkCMDs - checks that the system has access to each of the commands listed in an array named TOOLS
 #
-checkCMD()
+checkCMDs()
 {
     for i in "${!TOOLS[@]}"; do
         if ! command -v "${TOOLS[$i]}" &> /dev/null; then
@@ -410,4 +418,10 @@ getPassword()
     done
 
     echoLog "$passwd"
+}
+#
+# mkd
+#
+mkd() {
+    mkdir -p "$@" && cd "$@" || return 1
 }
