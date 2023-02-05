@@ -23,10 +23,6 @@ Includes Command-Line & GitHub Actions Versions
 
 <h4 align="center">Requires Bash4+ & Ubuntu Linux</h4>
 
-<!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
-[![All Contributors](https://img.shields.io/badge/all_contributors-1-orange.svg?style=flat-square)](#contributors-)
-<!-- ALL-CONTRIBUTORS-BADGE:END -->
-
 > Please help me increase signal strength on this repo - give it a ⭐
 
 
@@ -37,6 +33,8 @@ Includes Command-Line & GitHub Actions Versions
   - [Primary Features](#primary-features)
   - [More Detailed Features](#more-detailed-features)
   - [Branch Reliability](#branch-reliability)
+- [Requirements](#-requirements)
+	- [Installing YQ](#-installing-yq)
 - [Global Installation](#-global-installation)
 - [Docker Container](#-docker-container)
 - [Author/Maintainer](#-author--maintainer)
@@ -103,6 +101,45 @@ What happens from here depends on whether you're using the **Command Line Versio
 | `gh-pages/master`    |  latest stable  | latest release   |     🟢      |
 | `gh-pages/develop`   | latest unstable | most recent code |     🔴      |
 | `gh-pages/release/*` |     stable      | tagged versions  |     🟡      |
+
+[`^ Top`](#-table-of-contents)
+
+## 🚩 [Requirements](#-table-of-contents)
+
+> `Release Manager` has only one dependency - a magical little package called `YQ`
+
+You've likely heard of `jq` and it's cousin `jo` ... well, `YQ` is the tall, slender cousin with legs that just won't quit who made her fortune in the big smoke and came back home to nurse you through your retirement with a whiskey bottle which never runs dry and a secret 'special' treat every Friday night (the true nature of which you have sworn to take with you to your grave!)
+
+_...yea ... it's THAT good!_
+
+`YQ` doesn't only _completely_ replace both `jq` and `jo` and their ability to parse, output and manipulate `JSON`, `YQ` will also get down and dirty with `YAML`,`CSV`,`TSV`, and `XML` without letting a single drop go to waste ...
+
+### 💫 [Installing YQ](#-table-of-contents)
+
+> The instructions below are for Ubuntu, and those of you who haven't seen the light can [RTFM](https://github.com/mikefarah/yq/#install)
+
+Installation for Ubuntu is quick and easy, and all happens through `apt`.
+
+#### [Step 1 - Add the PPA repository && Update:](#-table-of-contents)
+
+```shell
+sudo add-apt-repository ppa:rmescandon/yq && sudo apt update -y
+```
+
+#### [Step 2 - Install YQ](#-table-of-contents)
+
+```shell
+sudo apt install -y yq
+```
+
+#### [Step 3 - Setup Bash-Completion for YQ [optional]](#-table-of-contents)
+
+```shell
+yq shell-completion bash | sudo tee /etc/bash_completion.d/yq-completion.bash &> /dev/null
+source <(yq shell-completion bash) # << so you don't have to reload your terminal session
+```
+
+#### Or you can ignore all that and let the `Configurator` take care of it below (Step 2)
 
 [`^ Top`](#-table-of-contents)
 
@@ -221,6 +258,9 @@ If you'd like to make a contribution of code, then please see my [**Contributor'
 
 It's not just code that I'm looking for though.  If you have any ideas or suggestions about how this project may be improved, don't hesitate to [**open an Issue**](https://github.com/ragdata/release-manager/issues) and let me know!  Because this project follows the [**all-contributors**](https://github.com/all-contributors/all-contributors) specification, contributions of ALL kinds will be recognised here if they are made a part of this project.
 
+<!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
+[![All Contributors](https://img.shields.io/badge/all_contributors-1-orange.svg?style=flat-square)](CONTRIBUTORS.md)
+<!-- ALL-CONTRIBUTORS-BADGE:END -->
 #### [View All Contributors][all-contributors]
 
 
