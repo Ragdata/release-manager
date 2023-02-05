@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# shellcheck disable=SC2034,SC2015,SC1090
+# shellcheck disable=SC2034,SC2015,SC1090,SC2143
 # ==================================================================
 # lib/rm/functions
 # ==================================================================
@@ -177,29 +177,24 @@ errorExit() {
 #
 file2Env() {
     filePath=${1:-}
-    marker=${2:'bash-bits'}
+    marker=${2:-'bash-bits'}
+    prefix=${3:-'declare -gx '}
 
     [[ -z $filePath ]] && errorExit "file2Env :: No Filename Passed!"
     [[ ! -f $filePath ]] && errorExit "file2Env :: File '$filePath' Not Found!"
 
-    echo "# $marker file output - start" >> /etc/environment
+	# delete lines from /etc/environment, if found
+	PATTERN1="# $marker file output - start"
+	PATTERN2="# $marker file output - end"
+	sed "/$PATTERN1/,/$PATTERN2/d" /etc/environment
 
-    while IFS= read -r line
-    do
-        if [[ ! "$line" =~ ^#.*$ ]]; then
-            line="${line#export }"
-            key="${line%=*}"
-            # if neither the variable name nor the line as a whole are there already, write the line
-            if ! grep -q "${key}" /etc/environment && ! grep -q "${line}" /etc/environment; then
-                echo "$line" >> /etc/environment
-            # if the variable name is there but the value is different, then replace with the line
-            elif grep -q "${key}" /etc/environment; then
-                sed -i "s/$key=.*/$line/" /etc/environment
-            fi
-        fi
-    done < "$filePath"
-
-    echo "# $marker file output - end" >> /etc/environment
+	while IFS= read -r line
+	do
+		if [[ ! "$line" =~ ^#.*$ ]]; then
+			line="${line#$prefix}"
+			[[ $EUID -ne 0 ]] && echo "$line" | sudo tee -a /etc/environment &> /dev/null || echo "$line" >> /etc/environment
+		fi
+	done < "$filePath"
 }
 #
 # checkDir
@@ -248,13 +243,15 @@ checkCmd() {
 #
 # what
 #
-what() {
-    if ! which "$1" &>/dev/null; then
-        echo false
-    else
-        echo true
-    fi
-}
+if ! which what &> /dev/null; then
+	what() {
+		if ! which "$1" &>/dev/null; then
+			echo false
+		else
+			echo true
+		fi
+	}
+fi
 #
 # shorten
 #
@@ -376,22 +373,19 @@ bashInit() {
 #
 # checkBash
 #
-checkBash()
-{
-    [[ "${BASH_VERSION:0:1}" -lt 4 ]] && errorExit "This script requires a minimum Bash version of 4+!"
+checkBash() {
+    [[ "${BASH_VERSION:0:1}" -lt 4 ]] && errorExit "This script requires a minimum Bash version of 4+!" || return 0
 }
 #
 # checkRoot
 #
-checkRoot()
-{
+checkRoot() {
     [[ "$EUID" -ne 0 ]] && errorExit "This script MUST be run as root!"
 }
 #
 # checkCMDs - checks that the system has access to each of the commands listed in an array named TOOLS
 #
-checkCMDs()
-{
+checkCMDs() {
     for i in "${!TOOLS[@]}"; do
         if ! command -v "${TOOLS[$i]}" &> /dev/null; then
             errorExit "ERROR :: Command '${TOOLS[$i]}' Not Found!"
@@ -401,8 +395,7 @@ checkCMDs()
 #
 # getPassword
 #
-getPassword()
-{
+getPassword() {
     local len=${1:-16}
 
     NUM_REGEX='^.*[0-9]+.*$'

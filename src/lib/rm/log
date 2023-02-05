@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-#
+# shellcheck disable=SC2001,SC2154
 # ==================================================================
 # lib/rm/log
 # ==================================================================
@@ -177,7 +177,6 @@ echoLog() {
     [[ -n "${LOGOPTS[pid]}" ]] && pid="::${LOGOPTS[pid]}:: "
     [[ -n "${LOGOPTS[file]}" ]] && msg="$(cat "${LOGOPTS[file]}")"
 
-    # shellcheck disable=SC2001
     msg=$(echo "$msg" | sed 's/\\e\[.+m//g')
 
     local prefix=""
