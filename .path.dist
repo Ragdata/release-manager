@@ -1,12 +1,13 @@
+#!/usr/bin/env bash
 # shellcheck disable=SC2034
 # ==================================================================
 # SYSTEM PATHS
 # ==================================================================
-export RM_LIB=/usr/local/lib/rm
-export RM_BIN=/usr/local/bin/rm
-export ETC=/usr/local/etc
-export RM_OPT=/opt/rm
-export RM_LOG=/var/log/rm
+declare -gx RM_LIB=/usr/local/lib/rm
+declare -gx RM_BIN=/usr/local/bin/rm
+declare -gx ETC=/usr/local/etc
+declare -gx RM_OPT=/opt/rm
+declare -gx RM_LOG=/var/log/rm
 # ==================================================================
 # REPO PATHS
 # ==================================================================
