@@ -18,36 +18,143 @@
 # FUNCTIONS
 #-------------------------------------------------------------------
 
+installGit() {
+	while [[ $IGIT =~ $RESP ]]
+	do
+		echo "This package requires Git"
+		echo -en "Would you like to install it now? ${DEFAULT_Y} "
+		read -n 1 -r IGIT
+		[[ -z $IGIT ]] && IGIT
+	done
+	if [[ $IGIT =~ $AFFIRM ]]; then
+		if sudo apt install -y git; then echo "Git Installed!"; else errorExit "ERROR :: Git Not Installed!"; fi
+	else
+		errorExit "Cannot proceed without git installed.  Please install Git and try again."
+	fi
+}
+
+installYq() {
+	while [[ $IYQ =~ $RESP ]]
+	do
+		echo "This package requires YQ"
+		echo -en "Would you like to install it now? ${DEFAULT_Y} "
+		read -n 1 -r IYQ
+		[[ -z $IYQ ]] && IYQ
+	done
+	if [[ $IYQ =~ $AFFIRM ]]; then
+		sudo add-apt-repository ppa:rmescandon/yq
+		sudo apt update -y
+		if sudo apt install -y yq; then echo "YQ Installed!"; else errorExit "ERROR :: YQ Not Installed!"; fi
+		yq shell-completion bash | sudo tee /etc/bash_completion.d/yq-completion.bash &> /dev/null
+		source <(yq shell-completion bash)
+	else
+		errorExit "Cannot proceed without yq installed.  Please install YQ and try again."
+	fi
+}
+
+installUtils() {
+	while [[ $IGIT =~ $RESP ]]
+	do
+		echo "This package requires MoreUtils"
+		echo -en "Would you like to install it now? ${DEFAULT_Y} "
+		read -n 1 -r IUTIL
+		[[ -z $IUTIL ]] && IUTIL
+	done
+	if [[ $IUTIL =~ $AFFIRM ]]; then
+		if sudo apt install -y git; then echo "Git Installed!"; else errorExit "ERROR :: Git Not Installed!"; fi
+	else
+		errorExit "Cannot proceed without git installed.  Please install Git and try again."
+	fi
+}
+
+installTool() {
+	case "$1" in
+		git)
+			installGit;;
+		yq)
+			installYq;;
+		sponge)
+			installUtils;;
+		*)
+			errorExit "release :: Invalid Argument"
+	esac
+}
+
+# overridden function
+checkCMD() {
+	local fail=true
+	local inst=false
+	[[ -n "$2" && "$2" == 'nofail' ]] && fail=false
+	[[ -n "$3" && "$3" == 'install' ]] && inst=true
+    if ! command -v "$1" &>/dev/null; then
+        echo "ERROR: Command '$1' Not Found!"
+        [[ "$fail" == true ]] && exit 1
+        [[ "$inst" == true ]] && installTool "$1"
+    fi
+}
+
+check() {
+	if [[ "${#TOOLS[@]}" -gt 0 ]]; then
+		for i in "${!TOOLS[@]}"; do
+			checkCMD "${TOOLS[$i]}" nofail install
+		done
+	fi
+}
+
 rmLoadBBLibs() {
-	source "$REPO_LIB/bb/rm-loader"
+	[[ -f "$RM_LIB/rm-loader" ]] && source "$RM_LIB/rm-loader" || source "$REPO_LIB/rm-loader"
 }
 
 rmLoadRMLibs() {
-	source "$REPO_LIB/rm/functions"
-	source "$REPO_LIB/rm/log"
+	if [[ -f "$RM_LIB/functions" ]]; then
+		source "$RM_LIB/functions"
+		source "$RM_LIB/log"
+	else
+		source "$REPO_LIB/functions"
+		source "$REPO_LIB/log"
+	fi
 }
 
-rmLoadLibs() {
-	set -a allexport
+rmSetup() {
+	clear
 
-	RM_REPO="$PWD"
-	REPO_CFG="$RM_REPO/cfg"
-	REPO_INC="$RM_REPO/inc"
-	REPO_TPL="$REPO_INC/tpl"
-	REPO_BIN="$RM_REPO/src/bin"
-	REPO_ETC="$RM_REPO/src/etc"
-	REPO_LIB="$RM_REPO/src/lib"
-
-	if [ -d /opt/bb ]; then rmLoadBBLibs; else rmLoadRMLibs; fi
-
-	set +a allexport
+#    echo "Release Manager Configurator"
+#    echo
+#    echo "Configuring Global Environment Variables"
+#
+#    check
+#
+#	line="export RM_REPO=$(pwd)"
+#    if ! grep -q "${line}" "$RM_REPO/.path"; then
+#    	[[ $EUID -ne 0 ]] && echo "${line}" | sudo tee -a "$RM_REPO/.path" &> /dev/null || echo "${line}" >> "$RM_REPO/.path"
+#    fi
+#
+#	line="$(tail -1 "$RM_REPO/.path")"
+#    if [[ ! "$line" =~ .*PATH.* ]]; then
+#    	line="export PATH=$PATH:$RM_BIN:$RM_LIB:$ETC"
+#    	[[ $EUID -ne 0 ]] && echo "${line}" | sudo tee -a "$RM_REPO/.path" &> /dev/null || echo "${line}" >> "$RM_REPO/.path"
+#    fi
+#
+#    sudo install -m 644 -g root -o root --backup=simple "$RM_REPO/.path" /etc/profile.d/rm-path.sh
+#
+#    sudo cp /etc/environment /etc/environment~
+#
+#    file2Env "$RM_REPO/.path" "release"
+#
+#	for dir in "${!DIRS[@]}"
+#	do
+#		dirName="${dir##*/}"
+#		[[ ! -d "$dir" ]] && mkdir -p "$dir"
+#	done
+#
+#    echo
+#    echo "DONE!"
+#    echo
+#    echo "In order to complete configuration, you need to close this session and login again"
+#    echo
 }
 
 rmInstall() {
-	set -eu
-
-	rmLoadLibs
-
 	clear
 
 	local LOGGING
@@ -79,10 +186,6 @@ rmInstall() {
 }
 
 rmUpdate() {
-	set -eu
-
-	rmLoadLibs
-
 	clear
 
 	[[ $(isLogInit) == true ]] && LOGGING=true || LOGGING=false
@@ -117,8 +220,14 @@ rmUninstall() {
 	while IFS= read -r line
 	do
         [[ "$line" =~ $match && "$active" -eq 1 ]] && active=0
-        [[ $active -eq 1 ]] echo "$line" | sudo tee -a /etc/environment
+        [[ $active -eq 1 ]] && echo "$line" | sudo tee -a /etc/environment
         [[ "$line" =~ $match && "$active" -eq 0 ]] && active=1
 	done < /etc/environment2
 	sudo rm -f /etc/environment2
 }
+
+#-------------------------------------------------------------------
+# MAIN
+#-------------------------------------------------------------------
+
+if [ -d /opt/bb ]; then rmLoadBBLibs; else rmLoadRMLibs; fi
