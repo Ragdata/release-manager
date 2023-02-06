@@ -75,12 +75,14 @@ Options:
 	-h, --help				Display this help information
 	-u, --update			Update Release Manager
 	-n, --uninstall			Uninstall Release Manager
-	-t, --type				Process Release Type: (requires additional argument)
-	-l, --log				Set Logging to (requires additional argument)
-								- false
-								- true
-									- if true will accept an additional optional argument being the logfile path
-										eg: release -t minor -l /var/log/myLog
+	-t <arg>, --type=<arg>  Process Release Type: (requires additional argument)
+	-l <arg>, --log=<arg>	Turn logging on or off
+							    - when enabling logging, the argument is optional
+								  for example, the following are all equal:
+								  	  bash config -s -l
+									  bash config -s -l true
+									  bash config -s --log
+									  bash config -s --log=true
 
 	Valid "Types":
 
@@ -219,16 +221,19 @@ while true
 do
 	case $1 in
 		-u|--update)
+			[[ $LOGGING == true ]] && logInit "release-update"
 			source "$RM_LIB/rm-install"
 			rmUpdate
 			shift
 			;;
 		-n|--uninstall)
+			[[ $LOGGING == true ]] && logInit "release-uninstall"
 			source "$RM_LIB/rm-install"
 			rmUninstall
 			shift
 			;;
 		-t|--type)
+			[[ $LOGGING == true ]] && logInit "release"
 			case $2 in
 				preview)
 					TYPE="preview"

@@ -17,7 +17,9 @@ set -e
 #-------------------------------------------------------------------
 # INITIALIZATION
 #-------------------------------------------------------------------
-declare -gx RM_REPO
+declare -gx RM_REPO=""
+
+RM_REPO="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &> /dev/null && pwd)"
 
 declare -gx REPO_CFG="$RM_REPO/cfg"
 declare -gx REPO_INC="$RM_REPO/inc"
@@ -25,15 +27,13 @@ declare -gx REPO_BIN="$RM_REPO/src/bin"
 declare -gx REPO_ETC="$RM_REPO/src/etc"
 declare -gx REPO_LIB="$RM_REPO/src/lib"
 
-RM_REPO="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &> /dev/null && pwd)"
-
 [ "$SUDO_USER" ] && user=$SUDO_USER || user=$(whoami)
 
 [[ ! -f "$RM_REPO/.path" ]] && install -m 644 -g "$user" -o "$user" --backup=simple "$RM_REPO/.path.dist" "$RM_REPO/.path"
 
 [[ -f "$RM_REPO/.path" ]] && source "$RM_REPO/.path" || source "$RM_REPO/.path.dist"
 
-[[ -f "$RM_LIB/rm-install" ]] && source "$RM_LIB/rm-install" || source "$REPO_LIB/src/lib/rm-install"
+[[ -f "$RM_LIB/rm-install" ]] && source "$RM_LIB/rm-install" || source "$REPO_LIB/rm-install"
 #-------------------------------------------------------------------
 # VARIABLES
 #-------------------------------------------------------------------
@@ -41,18 +41,20 @@ declare -agx TOOLS
 declare -agx REPO_DIRS
 declare -agx RM_DIRS
 
+declare -gx LOGGING=true
+
 TOOLS=(
 	"git"
 	"yq"
 )
 
-REPO_DIRS=(
-	"$REPO_CFG"
-	"$REPO_INC"
-	"$REPO_BIN"
-	"$REPO_ETC"
-	"$REPO_LIB"
-)
+#REPO_DIRS=(
+#	"$REPO_CFG"
+#	"$REPO_INC"
+#	"$REPO_BIN"
+#	"$REPO_ETC"
+#	"$REPO_LIB"
+#)
 
 RM_DIRS=(
 	"$RM_BIN"
@@ -61,19 +63,6 @@ RM_DIRS=(
 	"$RM_OPT"
 	"$RM_LOG"
 )
-#
-#if [ -d /opt/bb ]; then
-#	bash "$REPO_LIB/bb/rm-loader"
-#else
-#	source "$REPO_LIB/rm/functions"
-#	source "$REPO_LIB/rm/log"
-#fi
-#
-#checkBash
-## checkRoot
-#
-#
-
 #-------------------------------------------------------------------
 # FUNCTIONS
 #-------------------------------------------------------------------
@@ -89,11 +78,18 @@ Usage:
 
 Options:
 
-	-h, --help						Display this help information
-	-s, --setup						Prepare the environment for installation
-	-i, --install					Install Release Manager
-	-u, --update					Update Release Manager
-	-n, --uninstall					Uninstall Release Manager
+	-h, --help				Display this help information
+	-s, --setup				Prepare the environment for installation
+	-i, --install			Install Release Manager
+	-u, --update			Update Release Manager
+	-n, --uninstall			Uninstall Release Manager
+	-l <arg>, --log=<arg>	Turn logging on or off
+							    - when enabling logging, the argument is optional
+								  for example, the following are all equal:
+									  bash config -s -l
+									  bash config -s -l true
+									  bash config -s --log
+									  bash config -s --log=true
 
 Notes:
 
@@ -106,7 +102,7 @@ EOF
 # MAIN
 #-------------------------------------------------------------------
 
-ACTIONS=$(getopt -l "setup,install,update,uninstall,help" -o "siunh" -a -- "$@")
+ACTIONS=$(getopt -l "setup,install,update,uninstall,log::,help" -o "siunl::h" -a -- "$@")
 
 eval set --"$ACTIONS"
 
@@ -114,21 +110,36 @@ while true
 do
 	case $1 in
 		-s|--setup)
+			[[ $LOGGING == true ]] && logInit "$RM_LOG/config-setup"
 			rmSetup
 			exit 0
 			;;
 		-i|--install)
+			[[ $LOGGING == true ]] && logInit "$RM_LOG/config-install"
 			[[ ! -d /opt/rm ]] && rmSetup
 			rmInstall
 			exit 0
 			;;
 		-u|--update)
+			[[ $LOGGING == true ]] && logInit "$RM_LOG/config-update"
 			rmUpdate
 			exit 0
 			;;
 		-n|--uninstall)
+			[[ $LOGGING == true ]] && logInit "$RM_LOG/config-uninstall"
 			rmUninstall
 			exit 0
+			;;
+		-l|--log)
+			state="${2:-}"
+			if [[ -z "$state" ]]; then
+				state=true
+				shift
+			else
+				state="$2"
+				shift 2
+			fi
+			LOGGING="$state"
 			;;
 		-h|--help)
 			help

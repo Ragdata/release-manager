@@ -186,8 +186,7 @@ file2Env() {
 	# delete lines from /etc/environment, if found
 	PATTERN1="# $marker file output - start"
 	PATTERN2="# $marker file output - end"
-	sed "/$PATTERN1/,/$PATTERN2/d" /etc/environment
-
+	[[ $EUID -ne 0 ]] && sudo sed -i "/$PATTERN1/,/$PATTERN2/d" /etc/environment || sed -i "/$PATTERN1/,/$PATTERN2/d" /etc/environment
 	while IFS= read -r line
 	do
 		if [[ ! "$line" =~ ^#.*$ ]]; then

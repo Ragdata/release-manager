@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# shellcheck disable=SC2001,SC2154
+# shellcheck disable=SC2001,SC2154,SC2015,SC2178
 # ==================================================================
 # lib/rm/log
 # ==================================================================
@@ -23,7 +23,7 @@
 logHelp() {
     clear
     echoGold "\n======================================================"
-    echoGold "/usr/local/lib/stack-log.sh LIBRARY"
+    echoGold "/usr/local/lib/log LIBRARY"
     echoGold "======================================================"
     echo -e "${GOLD}Usage: ${WHITE}echoLog [MESSAGE] [OPTIONS]...${_0}"
     echoGold "------------------------------------------------------"
@@ -417,15 +417,20 @@ logInit() {
     declare -gx logPath=${LOG%/*}
     declare -gx logFile=${LOG##*/}
 
-    [[ ! -d "$logPath" ]] && mkdir -p "$logPath"
-    [[ ! -f "$logPath"/"$logFile" ]] && touch "$logPath"/"$logFile"
+	if [[ $EUID -ne 0 ]]; then
+		[[ ! -d "$logPath" ]] && sudo mkdir -p "$logPath"
+		[[ ! -f "$logPath"/"$logFile" ]] && sudo touch "$logPath"/"$logFile"
+	else
+		[[ ! -d "$logPath" ]] && mkdir -p "$logPath"
+		[[ ! -f "$logPath"/"$logFile" ]] && touch "$logPath"/"$logFile"
+	fi
 
     size=$(wc -c "$LOG" | awk '{print $1}')
 
     if [[ "$size" -gt 1024000 ]]; then
         ext=$(date '+%y%m%d.%I%M')
-        mv "$LOG" "$LOG.$ext"
-        touch "$LOG"
+        [[ $EUID -ne 0 ]] && sudo mv "$LOG" "$LOG.$ext" || mv "$LOG" "$LOG.$ext"
+        [[ $EUID -ne 0 ]] && sudo touch "$LOG" || touch "$LOG"
     fi
 }
 #
@@ -543,16 +548,16 @@ logWrite() {
     logTime=$(date '+%y-%m-%d:%I%M%S.%3N')
 
     if [[ "$msg" == "spacer" ]]; then
-        echo " " >> "$LOG"
+        [[ $EUID -ne 0 ]] && echo " " | sudo tee -a "$LOG" &> /dev/null || echo " " >> "$LOG"
     elif [[ "$msg" == "line" ]]; then
-        echo "======================================================" >> "$LOG"
+        [[ $EUID -ne 0 ]] && echo "======================================================" | sudo tee -a "$LOG" &> /dev/null || echo "======================================================" >> "$LOG"
     elif [[ "$msg" == "separator" ]]; then
-        echo "------------------------------------------------------" >> "$LOG"
+        [[ $EUID -ne 0 ]] && echo "------------------------------------------------------" | sudo tee -a "$LOG" &> /dev/null || echo "------------------------------------------------------" >> "$LOG"
     elif [[ "${LOGOPTS[n]}" == true ]]; then
-        echo -n "${logTime} - ${priority}${pid}${tag}${msg}" >> "$LOG"
+        [[ $EUID -ne 0 ]] && echo -n "${logTime} - ${priority}${pid}${tag}${msg}" | sudo tee -a "$LOG" &> /dev/null || echo -n "${logTime} - ${priority}${pid}${tag}${msg}" >> "$LOG"
     elif [[ "${LOGOPTS[c]}" == true ]]; then
-        echo "${msg}" >> "$LOG"
+        [[ $EUID -ne 0 ]] && echo "${msg}" | sudo tee -a "$LOG" &> /dev/null || echo "${msg}" >> "$LOG"
     else
-        echo "${logTime} - ${priority}${pid}${tag}${msg}" >> "$LOG"
+        [[ $EUID -ne 0 ]] && echo "${logTime} - ${priority}${pid}${tag}${msg}" | sudo tee -a "$LOG" &> /dev/null || echo "${logTime} - ${priority}${pid}${tag}${msg}" >> "$LOG"
     fi
 }

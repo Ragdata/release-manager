@@ -110,60 +110,81 @@ rmLoadRMLibs() {
 		source "$RM_LIB/functions"
 		source "$RM_LIB/log"
 	else
-		source "$REPO_LIB/functions"
-		source "$REPO_LIB/log"
+		source "$REPO_LIB/rm/functions"
+		source "$REPO_LIB/rm/log"
 	fi
 }
 
 rmSetup() {
 	clear
 
-#    echo "Release Manager Configurator"
-#    echo
-#    echo "Configuring Global Environment Variables"
-#
-#    check
-#
-#	line="export RM_REPO=$(pwd)"
-#    if ! grep -q "${line}" "$RM_REPO/.path"; then
-#    	[[ $EUID -ne 0 ]] && echo "${line}" | sudo tee -a "$RM_REPO/.path" &> /dev/null || echo "${line}" >> "$RM_REPO/.path"
-#    fi
-#
-#	line="$(tail -1 "$RM_REPO/.path")"
-#    if [[ ! "$line" =~ .*PATH.* ]]; then
-#    	line="export PATH=$PATH:$RM_BIN:$RM_LIB:$ETC"
-#    	[[ $EUID -ne 0 ]] && echo "${line}" | sudo tee -a "$RM_REPO/.path" &> /dev/null || echo "${line}" >> "$RM_REPO/.path"
-#    fi
-#
-#    sudo install -m 644 -g root -o root --backup=simple "$RM_REPO/.path" /etc/profile.d/rm-path.sh
-#
-#    sudo cp /etc/environment /etc/environment~
-#
-#    file2Env "$RM_REPO/.path" "release"
-#
-#	for dir in "${!DIRS[@]}"
-#	do
-#		dirName="${dir##*/}"
-#		[[ ! -d "$dir" ]] && mkdir -p "$dir"
-#	done
-#
-#    echo
-#    echo "DONE!"
-#    echo
-#    echo "In order to complete configuration, you need to close this session and login again"
-#    echo
+	if [[ $LOGGING == true ]]; then
+		echoLog "Release Manager Configuration" --color=gold
+		echoLog "spacer"
+		echoLog "Configuring Global Environment Variables"
+	else
+		echoGold "Release Manager Configuration"
+		echo
+		echo "Configuring Global Environment Variables"
+	fi
+
+    check
+
+    checkBash
+
+	line="declare -gx RM_REPO=$(pwd)"
+    if ! grep -q "${line}" "$RM_REPO/.path"; then
+    	[[ $EUID -ne 0 ]] && echo "${line}" | sudo tee -a "$RM_REPO/.path" &> /dev/null || echo "${line}" >> "$RM_REPO/.path"
+    fi
+
+	line="$(tail -1 "$RM_REPO/.path")"
+    if [[ ! "$line" =~ .*PATH.* ]]; then
+    	line="declare -gx PATH=$PATH:$RM_BIN:$RM_LIB:$ETC"
+    	[[ $EUID -ne 0 ]] && echo "${line}" | sudo tee -a "$RM_REPO/.path" &> /dev/null || echo "${line}" >> "$RM_REPO/.path"
+    fi
+
+	[[ $LOGGING == true ]] && echoLog "Installing path file in /etc/profile.d" || echo "Installing path file in /etc/profile.d"
+
+    sudo install -m 644 -g root -o root --backup=simple "$RM_REPO/.path" /etc/profile.d/rm-path.sh
+
+	[[ $LOGGING == true ]] && echoLog "Writing PATH to /etc/environment" || echo "Writing PATH to /etc/environment"
+
+    sudo cp /etc/environment /etc/environment~
+
+    file2Env "$RM_REPO/.path" "release"
+
+	[[ $LOGGING == true ]] && echoLog "Creating application paths" || echo "Creating application paths"
+
+	for dir in "${RM_DIRS[@]}"
+	do
+		if [[ ! -d "$dir" ]]; then
+			[[ $LOGGING == true ]] && echoLog "$dir" || echo "$dir"
+			sudo mkdir -p "$dir"
+		fi
+	done
+
+	if [[ $LOGGING == true ]]; then
+		echoLog "spacer"
+		echoLog "DONE!"
+		echoLog "spacer"
+		echoLog "In order to complete configuration, you need to close this session and login again"
+		echoLog "spacer"
+	else
+		echo
+		echo "DONE!"
+		echo
+		echo "In order to complete configuration, you need to close this session and login again"
+		echo
+	fi
 }
 
 rmInstall() {
 	clear
 
-	local LOGGING
 	local logMSG
 
-	[[ $(isLogInit) == true ]] && LOGGING=true || LOGGING=false
-
-	if [ $LOGGING == true ]; then
-		echoLog "Installing Release Manager - Changelog Generator & Packager" --color=yellow
+	if [[ $LOGGING == true ]]; then
+		echoLog "Installing Release Manager - Changelog Generator & Packager" --color=gold
 		echoLog "line"
 		echoLog "spacer"
 	else
@@ -173,12 +194,15 @@ rmInstall() {
 	fi
 
 	if [[ -d /opt/bb ]]; then
+		[[ $LOGGING == true ]] && echoLog "Installing Bash Bits Loader for Release Manager"
 		sudo install -m 644 -g root -o root --backup=simple "$REPO_LIB/bb/rm-loader" "$RM_LIB/rm-loader"
 	else
+		[[ $LOGGING == true ]] && echoLog "Installing Release Manager Libraries"
 		sudo install -m 644 -g root -o root --backup=simple "$REPO_LIB/rm/functions" "$RM_LIB/functions"
 		sudo install -m 644 -g root -o root --backup=simple "$REPO_LIB/rm/log" "$RM_LIB/log"
 	fi
 
+	[[ $LOGGING == true ]] && echoLog "Installing remaining files for Release Manager"
 	sudo install -m 644 -g root -o root --backup=simple "$REPO_ETC/release" "$ETC/release"
 	sudo install -m 644 -g root -o root --backup=simple "$REPO_CFG/.angular.rel" "$RM_OPT/cfg/.angular.rel"
 	sudo install -m 644 -g root -o root --backup=simple "$REPO_TPL/changelog.md" "$RM_OPT/inc/tpl/changelog.md"
@@ -188,10 +212,8 @@ rmInstall() {
 rmUpdate() {
 	clear
 
-	[[ $(isLogInit) == true ]] && LOGGING=true || LOGGING=false
-
 	if [ $LOGGING == true ]; then
-		echoLog "Updating Release Manager - Changelog Generator & Packager" --color=yellow
+		echoLog "Updating Release Manager - Changelog Generator & Packager" --color=gold
 		echoLog "line"
 		echoLog "spacer"
 	else
