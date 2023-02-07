@@ -3,6 +3,7 @@
 .archive/
 .path
 .releaserc
+.releaserc.yml
 
 log/
 log/*
