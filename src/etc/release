@@ -13,6 +13,12 @@
 # ==================================================================
 # Release Manager Executable
 # ==================================================================
+declare -Agx PROFILE
+
+PROFILE["STARTTIME"]="$(date +%s.%N)"
+
+[[ -f "$RM_LOG/error" ]] && sudo mv "$RM_LOG/error" "$RM_LOG/error~"
+
 exec 2>>"$RM_LOG/error"
 
 set -e
@@ -23,20 +29,24 @@ trap 'errorHandler $? ${LINENO}' ERR
 #-------------------------------------------------------------------
 declare -gx RM_REPO="$PWD"
 
-[[ -z "$RM_LIB" ]] && source "$RM_REPO/.path" || source "$RM_REPO/.path.dist"
+declare -gx REPO_CFG="$RM_REPO/cfg"
+declare -gx REPO_INC="$RM_REPO/inc"
+declare -gx REPO_BIN="$RM_REPO/src/bin"
+declare -gx REPO_ETC="$RM_REPO/src/etc"
+declare -gx REPO_LIB="$RM_REPO/src/lib"
+
+[ "$SUDO_USER" ] && user=$SUDO_USER || user=$(whoami)
+
+# [[ -z "$RM_LIB" ]] && source "$RM_REPO/.path" || source "$RM_REPO/.path.dist"
 
 [[ -f "$RM_LIB/rm-install" ]] && source "$RM_LIB/rm-install" || source "$RM_REPO/src/lib/rm-install"
 #-------------------------------------------------------------------
 # VARIABLES
 #-------------------------------------------------------------------
-declare -Agx PROFILE
-
-PROFILE["STARTTIME"]="$(date +%s.%N)"
-
 declare -agx FILES
 declare -agx TOOLS
 
-declare -gx LOGGING
+declare -gx LOGGING=true
 
 declare -gx WORKING_BRANCH
 declare -gx STAGING_BRANCH
@@ -48,6 +58,8 @@ TMPDIR="$(mktemp -d)"
 
 declare -gx CFGDIR="$RM_OPT/cfg"
 declare -gx TMPLDIR="$RM_OPT/inc/tpl"
+
+declare -gx TEMPCFG
 
 declare -gx sfx
 declare -gx _version
@@ -72,27 +84,27 @@ Usage:
 
 Options:
 
-	-h, --help				Display this help information
-	-u, --update			Update Release Manager
-	-n, --uninstall			Uninstall Release Manager
-	-t <arg>, --type=<arg>  Process Release Type: (requires additional argument)
-	-l <arg>, --log=<arg>	Turn logging on or off
-							    - when enabling logging, the argument is optional
-								  for example, the following are all equal:
-								  	  bash config -s -l
-									  bash config -s -l true
-									  bash config -s --log
-									  bash config -s --log=true
+	-h, --help                  Display this help information
+	-n, --uninstall             Uninstall Release Manager
+	-u <arg>, --update=<arg>    Update Release Manager
+	-t <arg>, --type=<arg>      Process Release Type: (requires additional argument)
+	-l <arg>, --log=<arg>       Turn logging on or off
+                                  - when enabling logging, the argument is optional
+                                    for example, the following are all equal:
+                                        bash config -s -l
+                                        bash config -s -l true
+                                        bash config -s --log
+                                        bash config -s --log=true
 
 	Valid "Types":
 
-		preview				Preview Release
-		prerelease			Prerelease (receives optional tertiary argument (eg: release -t prerelease alpha)
-		first				First Release (system will not increment configured version number)
-		patch				Patch Release (system increments third digit)
-		minor				Minor Release (system increments second digit, third digit 0)
-		major				Major Release (system increments first digit, second & third digits 0)
-		version				Specified Version Release (version argument required - eg: release -t version 1.3.2)
+		preview                 Preview Release
+		prerelease              Prerelease (receives optional tertiary argument (eg: release -t prerelease alpha)
+		first                   First Release (system will not increment configured version number)
+		patch                   Patch Release (system increments third digit)
+		minor                   Minor Release (system increments second digit, third digit 0)
+		major                   Major Release (system increments first digit, second & third digits 0)
+		version                 Specified Version Release (version argument required - eg: release -t version 1.3.2)
 
 	Notes:
 
@@ -127,8 +139,8 @@ getConfig() {
 		echoLog "separator"
 	fi
 
-    cfgFile="$(find "$PWD" -maxdepth 1 -type f -regextype posix-egrep -iregex ".+\.(release|releaserc|versionrc)(\.json)?")"
-    cfgDef="$(find "$CFGDIR" -maxdepth 1 -type f -regextype posix-egrep -iregex ".+\..*\.(rel|std)(\.json)?")"
+    cfgFile="$(find "$PWD" -maxdepth 1 -type f -regextype posix-egrep -iregex ".+\.(release|releaserc|versionrc)(\.yml)?(\.yaml)?")"
+    cfgDef="$(find "$CFGDIR" -maxdepth 1 -type f -regextype posix-egrep -iregex ".+\..*(\.yml)?(\.yaml)?")"
 
     if [[ -n "$cfgFile" ]]; then
     	[[ $LOGGING == true ]] && echoLog "Discovered Config File: '$cfgFile'"
@@ -143,8 +155,11 @@ getConfig() {
     fi
 
     if [[ -z "$(git config --get user.email)" ]]; then
-		echo
+		[[ $(yq -P '.git.user | has("name")' "$configFile") ]] && USER_NAME=$(yq -P '.git.user.name' "$configFile") || USER_NAME="Release-Manager"
     fi
+
+    echo "$USER_NAME"
+    exit 0
 }
 
 readConfig() {
@@ -155,15 +170,23 @@ readConfig() {
 	local filePath="${1:-}"
 	local fileName="${filePath##*/}"
 	local tmpFile="$TMPDIR/$fileName"
+	local config
 	local extends
 
 	declare -gx configFile
 
 	configFile="$tmpFile"
 
-	extends=$(yq -P '.extends' "$filePath")
+	angular=$(yq -P eval "$RM_REPO/cfg/angular.rel")
 
-	echo "$extends"
+	config=$(yq -P eval "$filePath")
+
+#	config=$(yq -P '.' "$filePath")
+
+#	echo "$config" > "$TEMPCFG"
+
+	echo "$angular"
+	exit 0
 }
 
 defaultConfig() {
@@ -201,19 +224,37 @@ check() {
 }
 
 main() {
+    PROFILE["CONFIG_STARTTIME"]="$(date +%s.%N)"
 	[[ $LOGGING == true ]] && clear
 
 	check
 
 	getConfig
+    PROFILE["CONFIG_ENDTIME"]="$(date +%s.%N)"
 
+    PROFILE["CONFIG_RUNTIME"]=$(printf "%.2f" "$(echo "${PROFILE["CONFIG_ENDTIME"]} - ${PROFILE["CONFIG_STARTTIME"]}" | bc -l)")
+    if [[ $LOGGING == true ]]; then
+        echoLog "separator"
+        echoLog "Profiler::Configuration Complete in ${PROFILE["CONFIG_RUNTIME"]} seconds" --color=cyan
+        echoLog "separator"
+    fi
+
+
+    PROFILE["ENDTIME"]="$(date +%s.%N)"
+    # shellcheck disable=SC2116
+    PROFILE["RUNTIME"]=$(printf "%.2f" "$(echo "${PROFILE["ENDTIME"]} - ${PROFILE["STARTTIME"]}" | bc -l)")
+    if [[ $LOGGING == true ]]; then
+        echoLog "separator"
+        echoLog "Profiler::Execution Complete in ${PROFILE["RUNTIME"]} seconds" --color=red
+        echoLog "separator"
+    fi
 }
 
 #-------------------------------------------------------------------
 # MAIN
 #-------------------------------------------------------------------
 
-OPTIONS=$(getopt -l "update,uninstall,type:,log::,help" -o "unt:l::h" -a -- "$@")
+OPTIONS=$(getopt -l "update,uninstall,type::,log::,help" -o "unt::l::h" -a -- "$@")
 
 eval set --"$OPTIONS"
 
@@ -221,19 +262,19 @@ while true
 do
 	case $1 in
 		-u|--update)
-			[[ $LOGGING == true ]] && logInit "release-update"
+			[[ $LOGGING == true ]] && logInit "$RM_LOG/release-update"
 			source "$RM_LIB/rm-install"
 			rmUpdate
-			shift
+			exit 0
 			;;
 		-n|--uninstall)
-			[[ $LOGGING == true ]] && logInit "release-uninstall"
+			[[ $LOGGING == true ]] && logInit "$RM_LOG/release-uninstall"
 			source "$RM_LIB/rm-install"
 			rmUninstall
-			shift
+			exit 0
 			;;
 		-t|--type)
-			[[ $LOGGING == true ]] && logInit "release"
+			[[ $LOGGING == true ]] && logInit "$RM_LOG/release"
 			case $2 in
 				preview)
 					TYPE="preview"
@@ -290,13 +331,15 @@ do
 			exit 0
 			;;
 		--)
-			help
-			exit 1
+			[[ $LOGGING == true ]] && logInit "$RM_LOG/release"
+			TYPE="auto"
+			break
 			;;
 		*)
 			errorExit "release :: Invalid Argument"
 			;;
 	esac
+	shift
 done
 
 [[ -z "$TYPE" ]] && TYPE="auto"

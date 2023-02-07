@@ -181,8 +181,6 @@ rmSetup() {
 rmInstall() {
 	clear
 
-	local logMSG
-
 	if [[ $LOGGING == true ]]; then
 		echoLog "Installing Release Manager - Changelog Generator & Packager" --color=gold
 		echoLog "line"
@@ -195,7 +193,7 @@ rmInstall() {
 
 	if [[ -d /opt/bb ]]; then
 		[[ $LOGGING == true ]] && echoLog "Installing Bash Bits Loader for Release Manager"
-		sudo install -m 644 -g root -o root --backup=simple "$REPO_LIB/bb/rm-loader" "$RM_LIB/rm-loader"
+		sudo install -m 755 -g root -o root --backup=simple "$REPO_LIB/bb/rm-loader" "$RM_LIB/rm-loader"
 	else
 		[[ $LOGGING == true ]] && echoLog "Installing Release Manager Libraries"
 		sudo install -m 644 -g root -o root --backup=simple "$REPO_LIB/rm/functions" "$RM_LIB/functions"
@@ -203,16 +201,20 @@ rmInstall() {
 	fi
 
 	[[ $LOGGING == true ]] && echoLog "Installing remaining files for Release Manager"
-	sudo install -m 644 -g root -o root --backup=simple "$REPO_ETC/release" "$ETC/release"
+	sudo install -m 755 -g root -o root --backup=simple "$REPO_ETC/release" "$ETC/release"
 	sudo install -m 644 -g root -o root --backup=simple "$REPO_CFG/.angular.rel" "$RM_OPT/cfg/.angular.rel"
 	sudo install -m 644 -g root -o root --backup=simple "$REPO_TPL/changelog.md" "$RM_OPT/inc/tpl/changelog.md"
-	sudo install -m 644 -g root -o root --backup=simple "$REPO_LIB/rm-install" "$RM_LIB/rm-install"
+	sudo install -m 755 -g root -o root --backup=simple "$REPO_LIB/rm-install" "$RM_LIB/rm-install"
+
+	[[ $LOGGING == true ]] && echoLog "DONE!"
 }
 
 rmUpdate() {
+	local ARGS=("$@")
+
 	clear
 
-	if [ $LOGGING == true ]; then
+	if [[ $LOGGING == true ]]; then
 		echoLog "Updating Release Manager - Changelog Generator & Packager" --color=gold
 		echoLog "line"
 		echoLog "spacer"
@@ -221,6 +223,26 @@ rmUpdate() {
 		echoYellow "======================================================"
 		echo
 	fi
+
+	echo "$@"
+	exit 0
+
+	if [[ "${#ARGS[@]}" -gt 0 ]]; then
+		for i in "${!ARGS[@]}"
+		do
+			case "${ARGS[$i]}" in
+				release)
+					[[ $LOGGING == true ]] && echoLog "Updating 'etc/release'"
+					sudo install -m 755 -g root -o root --backup=simple "$REPO_ETC/release" "$ETC/release"
+					;;
+				*)
+					errorExit "rm-install :: Invalid Argument"
+					;;
+			esac
+		done
+	fi
+
+	[[ $LOGGING == true ]] && echoLog "DONE!"
 }
 
 rmUninstall() {

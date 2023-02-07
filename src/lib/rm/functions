@@ -299,11 +299,11 @@ trim() {
     local from="${2:-b}"
 
     if [[ "$from" == "l" ]]; then
-        echo -e "${string}" | sed -e 's/^[[:space:]]*//'
+        echo -e "${string}" | sudo sed -e 's/^[[:space:]]*//'
     elif [[ "$from" == "r" ]]; then
-        echo -e "${string}" | sed -e 's/[[:space:]]*$-//'
+        echo -e "${string}" | sudo sed -e 's/[[:space:]]*$-//'
     else
-        echo -e "${string}" | sed -e 's/^[[:space:]]*//' | sed -e 's/[[:space:]]*$-//'
+        echo -e "${string}" | sudo sed -e 's/^[[:space:]]*//' | sed -e 's/[[:space:]]*$-//'
     fi
 }
 #
@@ -379,7 +379,7 @@ checkBash() {
 # checkRoot
 #
 checkRoot() {
-    [[ "$EUID" -ne 0 ]] && errorExit "This script MUST be run as root!"
+    [[ "$EUID" -ne 0 ]] && errorExit "This script MUST be run as root!" || return 0
 }
 #
 # checkCMDs - checks that the system has access to each of the commands listed in an array named TOOLS
@@ -413,7 +413,15 @@ getPassword() {
 }
 #
 # mkd
-#
+#ds
 mkd() {
-    mkdir -p "$@" && cd "$@" || return 1
+    sudo mkdir -p "$@" && cd "$@" || return 1
+}
+#
+# trunc
+#
+trunc() {
+	[[ ! -f "$1" ]] && errorExit "bb-functions/files :: File '$1' Not Found!"
+
+	sudo truncate -s 0 "$1"
 }

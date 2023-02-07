@@ -13,7 +13,13 @@
 # ==================================================================
 # Project Configurator - A tool to setup, install, and update Release Manager
 # ==================================================================
+[[ -f "$RM_LOG/error" ]] && sudo mv "$RM_LOG/error" "$RM_LOG/error~"
+
+exec 2>>"$RM_LOG/error"
+
 set -e
+
+trap 'errorHandler $? ${LINENO}' ERR
 #-------------------------------------------------------------------
 # INITIALIZATION
 #-------------------------------------------------------------------
@@ -23,6 +29,7 @@ RM_REPO="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &> /dev/null && pwd)"
 
 declare -gx REPO_CFG="$RM_REPO/cfg"
 declare -gx REPO_INC="$RM_REPO/inc"
+declare -gx REPO_TPL="$REPO_INC/tpl"
 declare -gx REPO_BIN="$RM_REPO/src/bin"
 declare -gx REPO_ETC="$RM_REPO/src/etc"
 declare -gx REPO_LIB="$RM_REPO/src/lib"
@@ -48,19 +55,12 @@ TOOLS=(
 	"yq"
 )
 
-#REPO_DIRS=(
-#	"$REPO_CFG"
-#	"$REPO_INC"
-#	"$REPO_BIN"
-#	"$REPO_ETC"
-#	"$REPO_LIB"
-#)
-
 RM_DIRS=(
 	"$RM_BIN"
 	"$RM_LIB"
 	"$ETC"
-	"$RM_OPT"
+	"$RM_OPT/cfg"
+	"$RM_OPT/inc/tpl"
 	"$RM_LOG"
 )
 #-------------------------------------------------------------------
@@ -78,18 +78,18 @@ Usage:
 
 Options:
 
-	-h, --help				Display this help information
-	-s, --setup				Prepare the environment for installation
-	-i, --install			Install Release Manager
-	-u, --update			Update Release Manager
-	-n, --uninstall			Uninstall Release Manager
-	-l <arg>, --log=<arg>	Turn logging on or off
-							    - when enabling logging, the argument is optional
-								  for example, the following are all equal:
-									  bash config -s -l
-									  bash config -s -l true
-									  bash config -s --log
-									  bash config -s --log=true
+	-h, --help				    Display this help information
+	-s, --setup				    Prepare the environment for installation
+	-i, --install			    Install Release Manager
+	-n, --uninstall			    Uninstall Release Manager
+	-u <arg>, --update=<arg>    Update Release Manager
+	-l <arg>, --log=<arg>	    Turn logging on or off
+							      - when enabling logging, the argument is optional
+								    for example, the following are all equal:
+									    bash config -s -l
+									    bash config -s -l true
+									    bash config -s --log
+									    bash config -s --log=true
 
 Notes:
 
@@ -102,7 +102,7 @@ EOF
 # MAIN
 #-------------------------------------------------------------------
 
-ACTIONS=$(getopt -l "setup,install,update,uninstall,log::,help" -o "siunl::h" -a -- "$@")
+ACTIONS=$(getopt -l "setup,install,update::,uninstall,log::,help" -o "siu::nl::h" -a -- "$@")
 
 eval set --"$ACTIONS"
 
@@ -122,7 +122,8 @@ do
 			;;
 		-u|--update)
 			[[ $LOGGING == true ]] && logInit "$RM_LOG/config-update"
-			rmUpdate
+			shift
+			rmUpdate "${@:1}"
 			exit 0
 			;;
 		-n|--uninstall)
@@ -152,3 +153,6 @@ do
 			errorExit "config :: Invalid Argument";;
 	esac
 done
+
+# reset all traps
+trap - 0 ERR
