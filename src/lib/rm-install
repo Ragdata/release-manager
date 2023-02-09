@@ -42,11 +42,9 @@ installYq() {
 		[[ -z $IYQ ]] && IYQ
 	done
 	if [[ $IYQ =~ $AFFIRM ]]; then
-		sudo add-apt-repository ppa:rmescandon/yq
-		sudo apt update -y
-		if sudo apt install -y yq; then echo "YQ Installed!"; else errorExit "ERROR :: YQ Not Installed!"; fi
+		wget https://github.com/mikefarah/yq/releases/download/v4.30.8/yq_linux_amd64.tar.gz | tar xz && sudo mv yq_linux_amd64 /usr/bin/yq
 		yq shell-completion bash | sudo tee /etc/bash_completion.d/yq-completion.bash &> /dev/null
-		source <(yq shell-completion bash)
+		if source <(yq shell-completion bash); then echo "YQ Installed!"; else errorExit "ERROR :: YQ Not Installed!"; fi
 	else
 		errorExit "Cannot proceed without yq installed.  Please install YQ and try again."
 	fi
@@ -202,7 +200,7 @@ rmInstall() {
 
 	[[ $LOGGING == true ]] && echoLog "Installing remaining files for Release Manager"
 	sudo install -m 755 -g root -o root --backup=simple "$REPO_ETC/release" "$ETC/release"
-	sudo install -m 644 -g root -o root --backup=simple "$REPO_CFG/.angular.rel" "$RM_OPT/cfg/.angular.rel"
+	sudo install -m 644 -g root -o root --backup=simple "$REPO_CFG/.angular.yml" "$RM_OPT/cfg/.angular.yml"
 	sudo install -m 644 -g root -o root --backup=simple "$REPO_TPL/changelog.md" "$RM_OPT/inc/tpl/changelog.md"
 	sudo install -m 755 -g root -o root --backup=simple "$REPO_LIB/rm-install" "$RM_LIB/rm-install"
 
@@ -258,7 +256,7 @@ rmUninstall() {
 	local active=1
 	local match="# release-manager"
 
-	mv /etc/environment /etc/environment2
+	sudo mv /etc/environment /etc/environment2
 	touch /etc/environment
 
 	while IFS= read -r line

@@ -21,7 +21,7 @@ PROFILE["STARTTIME"]="$(date +%s.%N)"
 
 exec 2>>"$RM_LOG/error"
 
-set -e
+if [[ "$1" == "debug" ]]; then set -- "${@:2}"; set -ex; else set -e; fi
 
 trap 'errorHandler $? ${LINENO}' ERR
 #-------------------------------------------------------------------
@@ -177,16 +177,22 @@ readConfig() {
 
 	configFile="$tmpFile"
 
-	angular=$(yq -P eval "$RM_REPO/cfg/angular.rel")
+	extends=$(yq '.extends' "$filePath")
 
-	config=$(yq -P eval "$filePath")
+	extFile="$(find "$CFGDIR" -maxdepth 1 -type f -regextype posix-egrep -iregex ".+\.$extends(\.yml)?(\.yaml)")"
 
-#	config=$(yq -P '.' "$filePath")
+	if [[ -n "$extFile" && -f "$extFile" ]]; then
+		[[ $LOGGING == true ]] && echoLog "Configuration file extends the '$extends' standard ..."
+		sudo cp --backup=simple "$extFile" "$tmpFile"
 
-#	echo "$config" > "$TEMPCFG"
+		CONFIG=$(yq "$filePath")
+		EXTEND=$(yq "$extFile")
 
-	echo "$angular"
-	exit 0
+
+	else
+		[[ $LOGGING == true ]] && echoLog "Configuration file does not extend a standard config"
+		sudo cp --backup=simple "$filePath" "$configFile"
+	fi
 }
 
 defaultConfig() {

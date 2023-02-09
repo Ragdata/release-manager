@@ -106,7 +106,7 @@ What happens from here depends on whether you're using the **Command Line Versio
 
 ## 🚩 [Requirements](#-table-of-contents)
 
-> `Release Manager` has only one dependency - a magical little package called `YQ`
+> `Release Manager` has only one dependency - a magical little package called `YQ` (version 4.18+)
 
 You've likely heard of `jq` and it's cousin `jo` ... well, `YQ` is the tall, slender cousin with legs that just won't quit who made her fortune in the big smoke and came back home to nurse you through your retirement with a whiskey bottle which never runs dry and a secret 'special' treat every Friday night (the true nature of which you have sworn to take with you to your grave!)
 
@@ -116,27 +116,42 @@ _...yea ... it's THAT good!_
 
 ### 💫 [Installing YQ](#-table-of-contents)
 
-> The instructions below are for Ubuntu, and those of you who haven't seen the light can [RTFM](https://github.com/mikefarah/yq/#install)
+> The instructions below should work for pretty much any linux distro.  If in doubt, [RTFM](https://github.com/mikefarah/yq/#install)
 
-Installation for Ubuntu is quick and easy, and all happens through `apt`.
+#### [Prepare](#-table-of-contents)
 
-#### [Step 1 - Add the PPA repository && Update:](#-table-of-contents)
-
-```shell
-sudo add-apt-repository ppa:rmescandon/yq && sudo apt update -y
-```
-
-#### [Step 2 - Install YQ](#-table-of-contents)
+If you haven't already, open a terminal for your favourite WSL2 installation and make a downloads directory:
 
 ```shell
-sudo apt install -y yq
+mkdir -p "$HOME/downloads/yq"
+cd ~/downloads/yq
 ```
 
-#### [Step 3 - Setup Bash-Completion for YQ [optional]](#-table-of-contents)
+#### [Step 1 - Download the latest YQ package from GitHub:](#-table-of-contents)
+
+```shell
+wget https://github.com/mikefarah/yq/releases/download/v4.30.8/yq_linux_amd64.tar.gz
+```
+
+#### [Step 2 - Extract the contents of the archive and install:](#-table-of-contents)
+
+```shell
+tar zxf yq_linux_amd64.tar.gz
+sudo mv yq_linux_amd64
+```
+
+#### [Step 3 - Install the man page [optional]](#-table-of-contents)
+
+```shell
+sudo ./install-man-page.sh
+```
+
+#### [Step 4 - Create / Install the bash-completion file for yq](#-table-of-contents)
 
 ```shell
 yq shell-completion bash | sudo tee /etc/bash_completion.d/yq-completion.bash &> /dev/null
-source <(yq shell-completion bash) # << so you don't have to reload your terminal session
+# this next line will allow you to use completion for yq without restarting your session
+source <(yq shell-completion bash)
 ```
 
 #### Or you can ignore all that and let the `Configurator` take care of it below (Step 2)

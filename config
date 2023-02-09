@@ -17,7 +17,7 @@
 
 exec 2>>"$RM_LOG/error"
 
-set -e
+if [[ "$1" == "debug" ]]; then set -- "${@:2}"; set -ex; else set -e; fi
 
 trap 'errorHandler $? ${LINENO}' ERR
 #-------------------------------------------------------------------
