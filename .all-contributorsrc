@@ -3,7 +3,7 @@
 	"projectOwner": "Ragdata",
 	"repoType": "github",
 	"repoHost": "https://github.com",
-	"files": ["CONTRIBUTORS.md","README.md"],
+	"files": ["CONTRIBUTORS.md"],
 	"imageSize": 100,
 	"commit": true,
 	"commitConvention": "angular",
@@ -29,15 +29,11 @@
 				"doc",
 				"design",
 				"financial",
-				"ideas",
 				"infra",
 				"maintenance",
 				"projectManagement",
-				"promotion",
 				"security",
-				"tool",
-				"test",
-				"talk"
+				"test"
 			]
 		}
 	]

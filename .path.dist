@@ -7,6 +7,10 @@ declare -gx RM_LIB=/usr/local/lib/rm
 declare -gx RM_BIN=/usr/local/bin/rm
 declare -gx ETC=/usr/local/etc
 declare -gx RM_OPT=/opt/rm
+declare -gx RM_CFG=/opt/rm/cfg
+declare -gx RM_INC=/opt/rm/inc
+declare -gx RM_HELP=/opt/rm/inc/help
+declare -gx RM_TMPL=/opt/rm/inc/tmpl
 declare -gx RM_LOG=/var/log/rm
 # ==================================================================
 # REPO PATHS

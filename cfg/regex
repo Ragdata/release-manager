@@ -1,0 +1,41 @@
+#!/usr/bin/env bash
+# shellcheck disable=SC2034
+
+#PATTERN='((\{\{(#|/)?([a-z\.\_][a-z0-9\.\_]+)( ([a-z\.\_][a-z0-9\.\_]+))?\}\})+)'
+#OPEN='((\{\{#([a-z\.\_][a-z0-9\.\_]+)( ([a-z\.\_][a-z0-9\.\_]+))?\}\})+)'
+#CLOSE='((\{\{/([a-z\.\_][a-z0-9\.\_]+)( ([a-z\.\_][a-z0-9\.\_]+))?\}\})+)'
+#CMD='((\{\{(#|/)+(if|each)( ([a-z\.\_][a-z0-9\.\_]+))\}\})+)'
+#COND='((\{\{(#|/)+(if)( ([a-z\.\_][a-z0-9\.\_]+))\}\})+)'
+#COND_OPEN='((\{\{#(if)( ([a-z\.\_][a-z0-9\.\_]+))\}\})+)'
+#COND_CLOSE='((\{\{/(if)( ([a-z\.\_][a-z0-9\.\_]+))\}\})+)'
+#LOOP='((\{\{(#|/)+(each)( ([a-z\.\_][a-z0-9\.\_]+))\}\})+)'
+#LOOP_OPEN='((\{\{#(each)( ([a-z\.\_][a-z0-9\.\_]+))\}\})+)'
+#LOOP_CLOSE='((\{\{/(each)( ([a-z\.\_][a-z0-9\.\_]+))\}\})+)'
+##VAR='^(.*)(\{\{([a-z\.\_][a-z0-9\.\_]+)\}\})'
+#VAR='^.*(\{\{[a-z\_]*\}\})'
+#
+#SCRIPT="stuff {{#doc open}} stuff {{/doc close}} stuff"
+#SCRIPT2="Changelog last updated on {{date_today}} for [{{name}}]({{repo_url}}) by [Release Manager](https://github.com/ragdata/release-manager)"
+#
+##if [[ ${SCRIPT2,,} =~ $VAR ]]; then
+##	echo "MATCHED"
+##	echo "${BASH_REMATCH[*]}"
+##	for i in "${!BASH_REMATCH[@]}"
+##	do
+##		echo "${BASH_REMATCH[$i]}"
+##	done
+##fi
+#
+#while [[ ${SCRIPT2,,} =~ $VAR ]]
+#do
+#	match="${BASH_REMATCH[0]}"
+#	one="${BASH_REMATCH[1]}"
+#	two="${BASH_REMATCH[2]}"
+#	three="${BASH_REMATCH[3]}"
+#	four="${BASH_REMATCH[4]}"
+#
+#	echo "MATCHING: $match || $one || $two || $three || $four"
+#	exit
+#done
+name='joshua'
+[[ $name =~ ([ao].*)([oa]) ]] && echo ${name/$BASH_REMATCH/X${BASH_REMATCH[1]}X${BASH_REMATCH[2]}}

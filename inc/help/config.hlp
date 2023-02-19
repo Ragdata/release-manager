@@ -1,0 +1,26 @@
+
+Project Configurator - A tool to setup, install, and update Release Manager
+
+Usage:
+
+	bash config <options>
+
+Options:
+
+	-h, --help				    Display this help information
+	-s, --setup				    Prepare the environment for installation
+	-i, --install			    Install Release Manager
+	-n, --uninstall			    Uninstall Release Manager
+	-u <arg>, --update=<arg>    Update Release Manager
+	-l <arg>, --log=<arg>	    Turn logging on or off
+							      - when enabling logging, the argument is optional
+								    for example, the following are all equal:
+									    bash config -s -l
+									    bash config -s -l true
+									    bash config -s --log
+									    bash config -s --log=true
+
+Notes:
+
+	You must run this script using a NON-ROOT user
+

@@ -6,11 +6,11 @@
 </h1>
 
 <h3 align="center"><em>
-Ragdata's Release Manager & Changelog Builder
+Ragdata's Automated Release & Deployment Bot with CHANGELOG
 <br /><br />
 Includes Command-Line & GitHub Actions Versions
 </em><h3>
-
+<br />
 <h3 align="center">
 <a href="https://github.com/ragdata/release-manager/issues">Issues</a>
 🔸
@@ -22,20 +22,29 @@ Includes Command-Line & GitHub Actions Versions
 </h3>
 
 <h4 align="center">Requires Bash4+ & Ubuntu Linux</h4>
-
+<br />
 > Please help me increase signal strength on this repo - give it a ⭐
 
 
 ## 📖 Table of Contents
 
 - [Project Overview](#-project-overview)
+  - [Software Release Agent](#-project-overview)
+  - [Changelog Manager](#-project-overview)
+  - [Deployment Bot](#-project-overview)
 - [Features](#-features)
   - [Primary Features](#primary-features)
   - [More Detailed Features](#more-detailed-features)
   - [Branch Reliability](#branch-reliability)
 - [Requirements](#-requirements)
-	- [Installing YQ](#-installing-yq)
-- [Global Installation](#-global-installation)
+- [Installation](#-installation)
+    - [Auto-Installers](#-auto-installers)
+      - [FULL Installer Script](#full-installer-script-) 👈
+      - [Dependencies Installer Script](#dependencies-installer-script)
+      - [Package Installer Script](#package-installer-script)
+    - [Install Dependencies](#-install-dependencies)
+      - [Installing YQ](#-installing-yq)
+    - [Install Release Manager](#-install-release-manager)
 - [Docker Container](#-docker-container)
 - [Author/Maintainer](#-author--maintainer)
 - [Security](#-security)
@@ -52,19 +61,22 @@ Includes Command-Line & GitHub Actions Versions
 
 > `Release Manager` does exactly what it says on the label, it manages your releases for you but the way it does so is just a little bit special - this software can be used both on the command line or as part of a GitHub Workflow! 
 
-`Release Manager` is comprised of 5 main parts:
+`Release Manager` is comprised of 3 main parts:
 
-**1. Versioner** - the first thing that `Release Manager` needs to do is determine what the next version should be.  You always have the option of telling RM which version to use, but it also has the means to work this out for itself.
-<br /><br />
-**2. Git Log Parser** - then it automatically grabs every commit record from the git database between the last tagged version and the latest commit which has contains one of the [commit types][commit-types] you have configured to be included in your changelog
-<br /><br />
-**3. Changelog Builder** - `Release Manager` uses a simple template to group and format those commit messages into an organised and coherent changelog which makes the entire history of your project visible and meaningful
-<br /><br />
-**4. Version Bumper** - the software then sorts through your git branches and bumps the version number of the files you indicate in the config file and saves those updated files to the appropriate branch waiting for the next step
-<br /><br />
-**5. Tag Creator** - and finally, `Release Manager` creates a tag of your staging branch with all changes made and committed to the appropriate branches, ready for you to either make manual adjustments to any other files you wanted to include with this **release version** - then all you have to do is deploy your new release!
+1. [**Software Release Agent**](#-table-of-contents) (Version Bumper & Packager) <br />
+   The Software Release Agent takes care of making sure that the files in your repository all have the correct version number listed, before tagging your release in git with that version number so that all you have to do is push to GitHub to make that version available to the world.
 
-What happens from here depends on whether you're using the **Command Line Version** of `Release Manager`, or the **GitHub Actions Version**.
+
+2. [**Changelog Manager**](#-table-of-contents) <br />
+   The Changelog Manager scans your database of git commits, and if you've been adhering to the [Conventional Commit Guidelines][conventional-commits] and committing informative commit messages, Release Manager will turn the _TYPES_ of commit you select into an easy-to-read, informative CHANGELOG.
+
+
+3. [**Deployment Bot**](#-table-of-contents) (Coming Soon)<br />
+   The Deployment Bot uses your git branches to make sure that everything gets to where it needs to be with as little effort as possible.  Deploy project documentation directly to GitHub Pages, your dockerfiles to the Docker Hub (or private repo of your choice), as well as a growing selection of major distribution sites including NPM, Ruby Gems, Packagist, Composer, and more ... 
+
+> <p align="center">What happens from here depends on which mode you're using <strong>Release Manager</strong> in:</p>
+> 
+> <h3 align="center">Command-Line Mode &nbsp; 🔹 &nbsp; GitHub Actions Mode</h3>
 
 [`^ Top`](#-table-of-contents)
 
@@ -114,6 +126,60 @@ _...yea ... it's THAT good!_
 
 `YQ` doesn't only _completely_ replace both `jq` and `jo` and their ability to parse, output and manipulate `JSON`, `YQ` will also get down and dirty with `YAML`,`CSV`,`TSV`, and `XML` without letting a single drop go to waste ...
 
+[`^ Top`](#-table-of-contents)
+
+## 📂 [Installation](#-table-of-contents)
+
+> This project follows the [Gitflow Workflow][gitflow], so the [`develop branch`][develop] is likely to be in an unstable or even broken state between releases.  Please use the latest [release version][release], or code from the [`master branch`][master] if you want more stable code.
+
+> <p align="center">You can either install Release Manager as a global package on your server,<br>or you can spin up the Docker version  (coming soon) and manage your releases on any system</p>
+
+## 📁 [Auto-Installers](#-table-of-contents)
+
+> This project includes automatic installation scripts for your convenience:
+> 
+> - <a href="https://raw.githubusercontent.com/ragdata/release-manager/v-1.0.0/install.sh" target="_blank"><strong>Full Installer Script</strong></a><br />
+>  The Full Installer Script is your one-stop-shop that gives you `Release Manager` with a single click!!
+> <br /><br />
+> - <a href="https://raw.githubusercontent.com/ragdata/release-manager/v-1.0.0/install-deps.sh" target="_blank"><strong>Dependencies Installer Script</strong></a><br />
+> The Dependencies Installer Script will install everything EXCEPT `Release Manager`
+> <br /><br />
+> - <a href="https://raw.githubusercontent.com/ragdata/release-manager/v-1.0.0/install-pkg.sh" target="_blank"><strong>Package Installer Script</strong></a><br />
+> The Package Installer Script will ONLY install `Release Manager`.  The script will assume that you already have all required dependencies installed and configured.  
+>   - (If in doubt, choose the <a href="#" target="_blank">Full Installer Script</a> above)
+
+#### [Full Installer Script](#-table-of-contents) 👈
+
+```shell
+curl -o- https://raw.githubusercontent.com/ragdata/release-manager/v-1.0.0/install.sh | bash
+```
+```shell
+wget -qO- https://raw.githubusercontent.com/ragdata/release-manager/v-1.0.0/install.sh | bash
+```
+
+#### [Dependencies Installer Script](#-table-of-contents)
+
+```shell
+curl -o- https://raw.githubusercontent.com/ragdata/release-manager/v-1.0.0/install-deps.sh | bash
+```
+```shell
+wget -qO- https://raw.githubusercontent.com/ragdata/release-manager/v-1.0.0/install-deps.sh | bash
+```
+
+#### [Package Installer Script](#-table-of-contents)
+
+```shell
+curl -o- https://raw.githubusercontent.com/ragdata/release-manager/v-1.0.0/install-pkg.sh | bash
+```
+```shell
+wget -qO- https://raw.githubusercontent.com/ragdata/release-manager/v-1.0.0/install-pkg.sh | bash
+```
+
+[`^ Top`](#-table-of-contents)
+
+## 📁 [Install Dependencies](#-table-of-contents)
+
+
 ### 💫 [Installing YQ](#-table-of-contents)
 
 > The instructions below should work for pretty much any linux distro.  If in doubt, [RTFM](https://github.com/mikefarah/yq/#install)
@@ -154,17 +220,9 @@ yq shell-completion bash | sudo tee /etc/bash_completion.d/yq-completion.bash &>
 source <(yq shell-completion bash)
 ```
 
-#### Or you can ignore all that and let the `Configurator` take care of it below (Step 2)
-
 [`^ Top`](#-table-of-contents)
 
-## 📂 [Global Installation](#-table-of-contents)
-
-> This project follows the [Gitflow Workflow][gitflow], so the [`develop branch`][develop] is likely to be in an unstable or even broken state between releases.  Please use the latest [release version][release], or code from the [`master branch`][master] if you want more stable code.
-
-> <p align="center">You can either install Release Manager as a global package on your server,<br>or you can spin up the Docker version  (coming soon) and manage your releases on any system</p>
-
-[`^ Top`](#-table-of-contents)
+## 📁 [Install Release Manager](#-table-of-contents)
 
 ### [Step 1 - Clone the Repo](#-table-of-contents)
 
@@ -207,7 +265,7 @@ sudo config update
 
 ## 🐋 [Docker Container](#-table-of-contents)
 
-#### COMING SOON
+<h3 align="center">** COMING SOON **</h3>
 
 [`^ Top`](#-table-of-contents)
 
@@ -373,3 +431,4 @@ Find out more on my [**Sponsor's Page**][sponsors]
 [sponsors]: https://github.com/sponsors/ragdata
 [commit-types]: https://kapeli.com/cheat_sheets/Conventional_Commits.docset/Contents/Resources/Documents/index
 [all-contributors]: CONTRIBUTORS.md
+[conventional-commits]: https://www.conventionalcommits.org/en/v1.0.0/

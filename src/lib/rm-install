@@ -200,9 +200,19 @@ rmInstall() {
 
 	[[ $LOGGING == true ]] && echoLog "Installing remaining files for Release Manager"
 	sudo install -m 755 -g root -o root --backup=simple "$REPO_ETC/release" "$ETC/release"
-	sudo install -m 644 -g root -o root --backup=simple "$REPO_CFG/.angular.yml" "$RM_OPT/cfg/.angular.yml"
-	sudo install -m 644 -g root -o root --backup=simple "$REPO_TPL/changelog.md" "$RM_OPT/inc/tpl/changelog.md"
+	sudo install -m 644 -g root -o root --backup=simple "$REPO_CFG/.angular.yml" "$RM_CFG/.angular.yml"
+	sudo install -m 644 -g root -o root --backup=simple "$REPO_TPL/changelog.md" "$RM_TMPL/changelog.md"
 	sudo install -m 755 -g root -o root --backup=simple "$REPO_LIB/rm-install" "$RM_LIB/rm-install"
+
+	[[ $LOGGING == true ]] && echoLog "Installing Release Manager Help Files"
+	for file in $("$REPO_HLP/*")
+	do
+		fileName="$(getFileName "$file")"
+		if [[ ! -d "$file" && -f "$file" ]]; then
+			[[ $LOGGING == true ]] && echoLog "'$file' -> '$RM_HELP/$fileName'"
+			sudo install -m 755 -g root -o root --backup=simple "$file" "$RM_HELP/$fileName"
+		fi
+	done
 
 	[[ $LOGGING == true ]] && echoLog "DONE!"
 }

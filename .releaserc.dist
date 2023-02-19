@@ -1,5 +1,5 @@
 id: name
-prettyName: Project Name
+name: Project Name
 description: Project Description
 version: 0.1.0
 extends: angular

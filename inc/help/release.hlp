@@ -1,0 +1,40 @@
+
+Project Executable - The core functionality of Release Manager
+
+Usage:
+
+	release <options>
+
+	eg:	release -t version v1.0.0
+
+Options:
+
+	-h, --help                  Display this help information
+	-n, --uninstall             Uninstall Release Manager
+	-u <arg>, --update=<arg>    Update Release Manager
+	-t <arg>, --type=<arg>      Process Release Type: (requires additional argument)
+	-l <arg>, --log=<arg>       Turn logging on or off
+                                  - when enabling logging, the argument is optional
+                                    for example, the following are all equal:
+                                        bash config -s -l
+                                        bash config -s -l true
+                                        bash config -s --log
+                                        bash config -s --log=true
+
+	Valid "Types":
+
+		preview                 Preview Release
+		prerelease              Prerelease (receives optional tertiary argument (eg: release -t prerelease alpha)
+		first                   First Release (system will not increment configured version number)
+		patch                   Patch Release (system increments third digit)
+		minor                   Minor Release (system increments second digit, third digit 0)
+		major                   Major Release (system increments first digit, second & third digits 0)
+		version                 Specified Version Release (version argument required - eg: release -t version 1.3.2)
+
+	Notes:
+
+	If you DO NOT specify a type, the system will do its best to determine the most appropriate version number
+	according to your git commit logs - HOWEVER - it's not particularly smart just yet ... you may encounter glitches
+
+	You must run this software using a ROOT ACCOUNT ONLY
+

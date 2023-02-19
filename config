@@ -29,10 +29,12 @@ RM_REPO="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &> /dev/null && pwd)"
 
 declare -gx REPO_CFG="$RM_REPO/cfg"
 declare -gx REPO_INC="$RM_REPO/inc"
-declare -gx REPO_TPL="$REPO_INC/tpl"
-declare -gx REPO_BIN="$RM_REPO/src/bin"
-declare -gx REPO_ETC="$RM_REPO/src/etc"
-declare -gx REPO_LIB="$RM_REPO/src/lib"
+declare -gx REPO_HLP="$REPO_INC/help"
+declare -gx REPO_TPL="$REPO_INC/tmpl"
+declare -gx REPO_SRC="$RM_REPO/src"
+declare -gx REPO_BIN="$REPO_SRC/bin"
+declare -gx REPO_ETC="$REPO_SRC/etc"
+declare -gx REPO_LIB="$REPO_SRC/lib"
 
 [ "$SUDO_USER" ] && user=$SUDO_USER || user=$(whoami)
 
@@ -59,44 +61,11 @@ RM_DIRS=(
 	"$RM_BIN"
 	"$RM_LIB"
 	"$ETC"
-	"$RM_OPT/cfg"
-	"$RM_OPT/inc/tpl"
+	"$RM_CFG"
+	"$RM_HELP"
+	"$RM_TMPL"
 	"$RM_LOG"
 )
-#-------------------------------------------------------------------
-# FUNCTIONS
-#-------------------------------------------------------------------
-
-help() {
-	cat << EOF
-
-Project Configurator - A tool to setup, install, and update Release Manager
-
-Usage:
-
-	bash config <options>
-
-Options:
-
-	-h, --help				    Display this help information
-	-s, --setup				    Prepare the environment for installation
-	-i, --install			    Install Release Manager
-	-n, --uninstall			    Uninstall Release Manager
-	-u <arg>, --update=<arg>    Update Release Manager
-	-l <arg>, --log=<arg>	    Turn logging on or off
-							      - when enabling logging, the argument is optional
-								    for example, the following are all equal:
-									    bash config -s -l
-									    bash config -s -l true
-									    bash config -s --log
-									    bash config -s --log=true
-
-Notes:
-
-	You must run this script using a NON-ROOT user
-
-EOF
-}
 
 #-------------------------------------------------------------------
 # MAIN
@@ -143,11 +112,11 @@ do
 			LOGGING="$state"
 			;;
 		-h|--help)
-			help
+			sudo cat "$RM_HELP/config.hlp"
 			exit 0
 			;;
 		--)
-			help
+			sudo cat "$RM_HELP/config.hlp"
 			exit 1;;
 		*)
 			errorExit "config :: Invalid Argument";;

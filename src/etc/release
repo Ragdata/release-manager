@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# shellcheck disable=SC2034,SC1090,SC2015
+# shellcheck disable=SC2034,SC1090,SC2015,SC2155
 # ==================================================================
 # release
 # ==================================================================
@@ -31,9 +31,12 @@ declare -gx RM_REPO="$PWD"
 
 declare -gx REPO_CFG="$RM_REPO/cfg"
 declare -gx REPO_INC="$RM_REPO/inc"
-declare -gx REPO_BIN="$RM_REPO/src/bin"
-declare -gx REPO_ETC="$RM_REPO/src/etc"
-declare -gx REPO_LIB="$RM_REPO/src/lib"
+declare -gx REPO_HLP="$REPO_INC/help"
+declare -gx REPO_TPL="$REPO_INC/tmpl"
+declare -gx REPO_SRC="$RM_REPO/src"
+declare -gx REPO_BIN="$REPO_SRC/bin"
+declare -gx REPO_ETC="$REPO_SRC/etc"
+declare -gx REPO_LIB="$REPO_SRC/lib"
 
 [ "$SUDO_USER" ] && user=$SUDO_USER || user=$(whoami)
 
@@ -43,26 +46,43 @@ declare -gx REPO_LIB="$RM_REPO/src/lib"
 #-------------------------------------------------------------------
 # VARIABLES
 #-------------------------------------------------------------------
+declare -Agx LOGGED_COMMITS
+declare -Agx FILTERED_COMMITS
+
+declare -agx COMMITS
 declare -agx FILES
 declare -agx TOOLS
+declare -agx TYPES
 
+declare -gx CONFIG
+declare -gx LOGGED_TYPES
 declare -gx LOGGING=true
+
+declare -gx TMPL
 
 declare -gx WORKING_BRANCH
 declare -gx STAGING_BRANCH
 declare -gx PRODUCT_BRANCH
+
+declare -gx VERSION
+declare -gx REPOSITORY_URL
+declare -gx REPOSITORY_LABEL
+declare -gx AUTHOR_NAME
+declare -gx AUTHOR_EMAIL
+declare -gx AUTHOR_URL
 
 declare -gx TMPDIR
 
 TMPDIR="$(mktemp -d)"
 
 declare -gx CFGDIR="$RM_OPT/cfg"
-declare -gx TMPLDIR="$RM_OPT/inc/tpl"
+declare -gx TMPLDIR="$RM_TMPL"
 
 declare -gx TEMPCFG
 
 declare -gx sfx
-declare -gx _version
+declare -gx _VERSION
+declare -gx VERSION
 
 declare -gx TYPE
 declare -gx TAG
@@ -70,51 +90,6 @@ declare -gx TAG
 #-------------------------------------------------------------------
 # FUNCTIONS
 #-------------------------------------------------------------------
-
-help() {
-	cat << EOF
-
-Project Executable - The core functionality of Release Manager
-
-Usage:
-
-	release <options>
-
-	eg:	release -t version v1.0.0
-
-Options:
-
-	-h, --help                  Display this help information
-	-n, --uninstall             Uninstall Release Manager
-	-u <arg>, --update=<arg>    Update Release Manager
-	-t <arg>, --type=<arg>      Process Release Type: (requires additional argument)
-	-l <arg>, --log=<arg>       Turn logging on or off
-                                  - when enabling logging, the argument is optional
-                                    for example, the following are all equal:
-                                        bash config -s -l
-                                        bash config -s -l true
-                                        bash config -s --log
-                                        bash config -s --log=true
-
-	Valid "Types":
-
-		preview                 Preview Release
-		prerelease              Prerelease (receives optional tertiary argument (eg: release -t prerelease alpha)
-		first                   First Release (system will not increment configured version number)
-		patch                   Patch Release (system increments third digit)
-		minor                   Minor Release (system increments second digit, third digit 0)
-		major                   Major Release (system increments first digit, second & third digits 0)
-		version                 Specified Version Release (version argument required - eg: release -t version 1.3.2)
-
-	Notes:
-
-	If you DO NOT specify a type, the system will do its best to determine the most appropriate version number
-	according to your git commit logs - HOWEVER - it's not particularly smart just yet ... you may encounter glitches
-
-	You must run this software using a ROOT ACCOUNT ONLY
-
-EOF
-}
 
 errorHandler() {
     local errNo="${1}"
@@ -131,6 +106,184 @@ errorHandler() {
         echo "ERROR: ($errNo) $errMsg on Line $lineNo"
     fi
     exit 1
+}
+
+releaseError() {
+	local msg="${1:-"Unknown Error"}"
+
+	if [[ $LOGGING == true ]]; then
+		errorLog "$msg"
+	else
+		echo "$msg"
+	fi
+}
+
+releaseExit() {
+	local msg="${1:-"Unknown Error"}"
+
+	if [[ $LOGGING == true ]]; then
+		exitLog "$msg"
+	else
+		errorExit "$msg"
+	fi
+}
+
+getCommitData() {
+	if [[ $LOGGING == true ]]; then
+		echoLog "spacer"
+		echoLog "Retrieving Commit Data" --color=gold
+		echoLog "separator"
+	fi
+
+	[[ $LOGGING == true ]] && echoLog "Declaring local data variables ..."
+
+	local -a TAGS
+
+	local GIT_TAGS
+	local PREV_TAG
+	local LATEST_TAG
+
+	local c_ref
+	local c_subject
+	local c_title
+	local c_type
+	local c_scope
+
+	local d_timestamp
+	local d_date
+	local d_ref
+	local d_hash
+	local d_subject
+	local d_title
+	local d_type
+	local d_scope
+	local d_body
+	local d_rel
+
+	local THIS_COMMIT
+
+	[[ $LOGGING == true ]] && echoLog "Reading configuration file into memory ..."
+
+	CONFIG="$(yq "$configFile")"
+
+	[[ $LOGGING == true ]] && echoLog "Reading template variables from config ..."
+
+	[[ $(yq 'has("prefix")' "$configFile") ]] && V_PREFIX="$(yq '.prefix' "$configFile")"
+	[[ $(yq 'has("version")' "$configFile") ]] && _VERSION="$(yq '.version' "$configFile")"
+	[[ $(yq '.changelog.template | has("markdown")' "$configFile") ]] && TMPL="$(yq '.changelog.template.markdown' "$configFile")"
+	[[ $(yq '.repository | has("url")' "$configFile") ]] && REPOSITORY_URL="$(yq '.repository.url' "$configFile")"
+	[[ $(yq '.repository | has("label")' "$configFile") ]] && REPOSITORY_LABEL="$(yq '.repository.label' "$configFile")"
+	[[ $(yq '.author | has("name")' "$configFile") ]] && AUTHOR_NAME="$(yq '.author.name' "$configFile")"
+	[[ $(yq '.author | has("email")' "$configFile") ]] && AUTHOR_EMAIL="$(yq '.author.email' "$configFile")"
+	[[ $(yq '.author | has("url")' "$configFile") ]] && AUTHOR_URL="$(yq '.author.url' "$configFile")"
+	[[ $(yq '.types | has("logged")' "$configFile") ]] && LOGGED_TYPES="$(yq '.types.logged' "$configFile")"
+
+	# complete global variables with config data
+	VERSION="$V_PREFIX$_VERSION"
+	TMPL="$TMPLDIR/$TMPL"
+
+	[[ $LOGGING == true ]] && echoLog "Generating list of all git tags in reverse order ..."
+
+	GIT_TAGS=$(git tag -l --sort=-version:refname)
+
+	# package tags as an array
+	TAGS=("$GIT_TAGS")
+	# extract critical variables
+	LATEST_TAG="${TAGS[0]}"
+	PREV_TAG="${TAGS[1]}"
+
+	[[ $LOGGING == true ]] && echoLog "Building array of logged commit types ..."
+
+	# build array of logged commit types
+	eval "TYPES=( $(echo "$LOGGED_TYPES" | yq '@sh "\([.[].type])"') )"
+
+	if [[ -n "$PREV_TAG" && -n "$LATEST_TAG" && "${TYPE,,}" != "first" ]]; then
+		[[ $LOGGING == true ]] && echoLog "Generating a log of all commits which occurred between '$PREV_TAG' and '$LATEST_TAG'"
+		# get a log of all commits that occurred between the two tags
+		while IFS= read -r commit
+		do
+			COMMITS[${#COMMITS[@]}]="$commit"
+		done < <(git log --pretty=format:"%h" "$PREV_TAG..$LATEST_TAG")
+	else
+		[[ $LOGGING == true ]] && echoLog "Generating a log of ALL commits ..."
+		# get a log of all commits for this project
+		while IFS= read -r commit
+		do
+			COMMITS[${#COMMITS[@]}]="$commit"
+		done < <(git log --pretty=format:"%h")
+	fi
+
+	[[ $LOGGING == true ]] && echoLog "Filtering out commits which aren't being logged ..."
+	# filter out commits which aren't being logged
+	for i in "${!COMMITS[@]}"
+	do
+		c_ref="${COMMITS[$i]}"
+		# get subject
+		c_subject="$(trim "$(git log "$c_ref" --max-count=1 --pretty=format:"%s")")"
+		# get title
+		c_title="$(trim "$(strip "$c_subject" ":" "r")")"
+		# remove title from subject
+		c_subject="$(trim "$(strip "$c_subject" ":" "l")")"
+		# get type & scope
+		# shellcheck disable=SC2001
+		if [[ "$c_title" =~ .*\(.*\).* ]]; then
+			c_scope="$(trim "$(sed 's/.*(\(.*\))/\1/' <<< "$c_title")")"
+			c_type="$(trim "$(strip "$c_title" "(" "r")")"
+		else
+			c_type="$(trim "$c_title")"
+		fi
+
+		if inArray "$c_type" "${TYPES[@]}"; then
+			[[ $LOGGING == true ]] && echoLog "$c_ref - $c_type: $c_subject" --color=white
+			OLD_IFS="$IFS"
+			IFS="㉿"
+			# get commit details
+			read -r -a commit <<< "$(git log "$c_ref" --max-count=1 --pretty=format:"%H㉿%b㉿%aD㉿%ar㉿%at")"
+			# get data points
+			export d_timestamp="${commit[4]}"
+			export d_ref="$c_ref"
+			export d_hash="${commit[0]}"
+			export d_type="$c_type"
+			export d_scope="$c_scope"
+			export d_subject="$c_subject"
+			export d_body="${commit[1]}"
+			export d_date="${commit[2]}"
+			export d_rel="${commit[3]}"
+			# format data object
+			THIS_COMMIT=$(yq --null-input '{"timestamp": env(d_timestamp), "ref": env(d_ref), "hash": env(d_hash), "type": env(d_type), "scope": env(d_scope), "subject": env(d_subject), "body": env(d_body), "date": env(d_date), "rel": env(d_rel)}')
+			# add commit to associative array
+			[[ -n "${FILTERED_COMMITS["$c_type"]}" ]] && THIS_COMMIT="${FILTERED_COMMITS["$c_type"]}\n$THIS_COMMIT"
+			FILTERED_COMMITS["$c_type"]="$THIS_COMMIT"
+			IFS="$OLD_IFS"
+		else
+			[[ $LOGGING == true ]] && echoLog "$c_ref - $c_type" --color=dgrey
+		fi
+
+		# unset local data object
+		THIS_COMMIT=""
+		# unset local variables
+		c_ref=""; c_subject=""; c_title=""; c_type=""; c_scope="";
+	done
+
+	local COUNT
+	local TOTAL=0
+
+	if [[ $LOGGING == true ]]; then
+		echoLog "separator" --color=gold
+		echoLog "Logged Commit Types: ${#TYPES[@]} - [ ${TYPES[*]} ]" --color=yellow
+		for i in "${!TYPES[@]}"
+		do
+			if [[ -n "${FILTERED_COMMITS["${TYPES[$i]}"]}" ]]; then
+                # shellcheck disable=SC2116
+                COUNT="$(printf '%i' "$(echo "${FILTERED_COMMITS["${TYPES[$i]}"]}" | yq length)")"
+                # shellcheck disable=SC2206
+                TOTAL=$((TOTAL+COUNT))
+                echoLog "${TYPES[$i]^} Commits: $COUNT"
+			fi
+		done
+        echoLog "Total Filtered Commits: ${TOTAL}" --color=yellow
+        echoLog "separator" --color=gold
+	fi
 }
 
 getConfig() {
@@ -156,10 +309,11 @@ getConfig() {
 
     if [[ -z "$(git config --get user.email)" ]]; then
 		[[ $(yq -P '.git.user | has("name")' "$configFile") ]] && USER_NAME=$(yq -P '.git.user.name' "$configFile") || USER_NAME="Release-Manager"
+		[[ $(yq -P '.git.user | has("email")' "$configFile") ]] && USER_EMAIL=$(yq -P '.git.user.email' "$configFile") || USER_EMAIL="rm@noreply.ragdata.dev"
+		git config --global user.name = "$USER_NAME"
+		git config --global user.email = "$USER_EMAIL"
+		[[ $LOGGING == true ]] && echoLog "Git global user configuration set: $USER_NAME <$USER_EMAIL>"
     fi
-
-    echo "$USER_NAME"
-    exit 0
 }
 
 readConfig() {
@@ -173,6 +327,8 @@ readConfig() {
 	local config
 	local extends
 
+	validateConfig "$filePath"
+
 	declare -gx configFile
 
 	configFile="$tmpFile"
@@ -182,17 +338,44 @@ readConfig() {
 	extFile="$(find "$CFGDIR" -maxdepth 1 -type f -regextype posix-egrep -iregex ".+\.$extends(\.yml)?(\.yaml)")"
 
 	if [[ -n "$extFile" && -f "$extFile" ]]; then
+		validateConfig "$extFile"
+
 		[[ $LOGGING == true ]] && echoLog "Configuration file extends the '$extends' standard ..."
-		sudo cp --backup=simple "$extFile" "$tmpFile"
 
-		CONFIG=$(yq "$filePath")
-		EXTEND=$(yq "$extFile")
+		sudo cp --backup=simple "$extFile" "$configFile"
 
+		[[ $(yq 'has("id")' "$filePath") ]] && { export val=$(yq '.id' "$filePath"); yq -i e '.id = env(val)' "$configFile"; }
+		[[ $(yq 'has("name")' "$filePath") ]] && { export val=$(yq '.name' "$filePath"); yq -i e '.name = env(val)' "$configFile"; }
+		[[ $(yq 'has("description")' "$filePath") ]] && { export val=$(yq '.description' "$filePath"); yq -i e '.description = env(val)' "$configFile"; }
+		[[ $(yq 'has("version")' "$filePath") ]] && { export val=$(yq '.version' "$filePath"); yq -i e '.version = env(val)' "$configFile"; }
+		[[ $(yq 'has("prefix")' "$filePath") ]] && { export val=$(yq '.prefix' "$filePath"); yq -i e '.prefix = env(val)' "$configFile"; }
+		[[ $(yq 'has("extends")' "$filePath") ]] && { export val=$(yq '.extends' "$filePath"); yq -i e '.extends = env(val)' "$configFile"; }
+		[[ $(yq 'has("license")' "$filePath") ]] && { export val=$(yq '.license' "$filePath"); yq -i e '.license = env(val)' "$configFile"; }
+		[[ $(yq '.git.user | has("name")' "$filePath") ]] && { export val=$(yq '.git.user.name' "$filePath"); yq -i e '.git.user.name = env(val)' "$configFile"; }
+		[[ $(yq '.git.user | has("email")' "$filePath") ]] && { export val=$(yq '.git.user.email' "$filePath"); yq -i e '.git.user.email = env(val)' "$configFile"; }
+		[[ $(yq '.git.branches | has("prod")' "$filePath") ]] && { export val=$(yq '.git.branches.prod' "$filePath"); yq -i e '.git.branches.prod = env(val)' "$configFile"; }
+		[[ $(yq '.git.branches | has("patch")' "$filePath") ]] && { export val=$(yq '.git.branches.patch' "$filePath"); yq -i e '.git.branches.patch = env(val)' "$configFile"; }
+		[[ $(yq '.git.branches | has("release")' "$filePath") ]] && { export val=$(yq '.git.branches.release' "$filePath"); yq -i e '.git.branches.release = env(val)' "$configFile"; }
+		[[ $(yq '.git | has("message")' "$filePath") ]] && { export val=$(yq '.git.message' "$filePath"); yq -i e '.git.message = env(val)' "$configFile"; }
+		[[ $(yq 'has("files")' "$filePath") ]] && { export val=$(yq '.files' "$filePath"); yq -i e '.files = env(val)' "$configFile"; }
+		[[ $(yq '.changelog.template | has("markdown")' "$filePath") ]] && { export val=$(yq '.changelog.template.markdown' "$filePath"); yq -i e '.changelog.template.markdown = env(val)' "$configFile"; }
+		[[ $(yq '.types | has("list")' "$filePath") ]] && { export val=$(yq '.types.list' "$filePath"); yq -i e '.types.list = env(val)' "$configFile"; }
+		[[ $(yq '.types | has("aliases")' "$filePath") ]] && { export val=$(yq '.types.aliases' "$filePath"); yq -i e '.types.aliases = env(val)' "$configFile"; }
+		[[ $(yq '.types | has("logged")' "$filePath") ]] && { export val=$(yq '.types.logged' "$filePath"); yq -i e '.types.logged = env(val)' "$configFile"; }
+		[[ $(yq 'has("homepage")' "$filePath") ]] && { export val=$(yq '.homepage' "$filePath"); yq -i e '.homepage = env(val)' "$configFile"; }
+		[[ $(yq '.repository | has("label")' "$filePath") ]] && { export val=$(yq '.repository.label' "$filePath"); yq -i e '.repository.label = env(val)' "$configFile"; }
+		[[ $(yq '.repository | has("url")' "$filePath") ]] && { export val=$(yq '.repository.url' "$filePath"); yq -i e '.repository.url = env(val)' "$configFile"; }
+		[[ $(yq '.author | has("name")' "$filePath") ]] && { export val=$(yq '.author.name' "$filePath"); yq -i e '.author.name = env(val)' "$configFile"; }
+		[[ $(yq '.author | has("email")' "$filePath") ]] && { export val=$(yq '.author.email' "$filePath"); yq -i e '.author.email = env(val)' "$configFile"; }
+		[[ $(yq '.author | has("url")' "$filePath") ]] && { export val=$(yq '.author.url' "$filePath"); yq -i e '.author.url = env(val)' "$configFile"; }
+		[[ $(yq 'has("support")' "$filePath") ]] && { export val=$(yq '.support' "$filePath"); yq -i e '.support = env(val)' "$configFile"; }
 
 	else
 		[[ $LOGGING == true ]] && echoLog "Configuration file does not extend a standard config"
 		sudo cp --backup=simple "$filePath" "$configFile"
 	fi
+
+	[[ $LOGGING == true ]] && echoLog "Configuration file for current session stored at '$configFile'"
 }
 
 defaultConfig() {
@@ -221,6 +404,14 @@ defaultConfig() {
 EOF
 }
 
+validateConfig() {
+	local filePath="${1:-}"
+
+	[[ -z "$filePath" ]] && releaseExit "release :: ERROR - No Config Filepath Given!"
+	[[ ! -f "$filePath" ]] && releaseExit "release :: ERROR - Config Filepath '$filePath' Not Found!"
+	[[ ! $(yq --exit-status 'tag == "!!map" or tag == "!!seq"' "$filePath") ]] && releaseExit "release :: ERROR - Invalid Configuration File '$filePath'"
+}
+
 check() {
 	if [[ "${#FILES[@]}" -gt 0 ]]; then
 		for i in "${!FILES[@]}"; do
@@ -229,22 +420,179 @@ check() {
 	fi
 }
 
+checkGit() {
+	[[ $LOGGING == true ]] && echoLog "Checking Git Readiness ..."
+
+	if [[ -n $(git status . -s) ]]; then
+		releaseExit "release :: ERROR - Commit the staged files first, then run this command again"
+	fi
+
+	WORKING_BRANCH="$(git branch --show-current)"
+	PRODUCT_BRANCH="$(yq '.git.branches.prod' "$configFile")"
+
+	if ! git branch -a | grep -q "remotes/origin/HEAD -> origin/$PRODUCT_BRANCH"; then
+		git symbolic-ref refs/remotes/origin/HEAD refs/remotes/origin/"$PRODUCT_BRANCH"
+	fi
+
+	STAGING_BRANCH="$(git symbolic-ref refs/remotes/origin/HEAD | sed 's@^refs/remotes/origin/@@')"
+
+	if [[ $LOGGING == true ]]; then
+		echoLog "PRODUCT BRANCH -> '$PRODUCT_BRANCH'"
+		echoLog "WORKING BRANCH -> '$WORKING_BRANCH'"
+		echoLog "STAGING BRANCH -> '$STAGING_BRANCH'"
+	fi
+
+	if [[ "$WORKING_BRANCH" != "$STAGING_BRANCH" && ! "$WORKING_BRANCH" =~ $PATCH_REGEX ]]; then
+		releaseExit "release :: ERROR - Please run on the master branch or patch / hotfix branches"
+	fi
+}
+
+parseTemplateBlock() {
+	local start="${1:-}"
+	local finish="${2:-}"
+	local filePath="${3:-}"
+	local active=0
+
+	local LF="㉿"
+	local OUTPUT=""
+
+	[[ -z "$filePath" ]] && filePath="$TMPL"
+
+	while IFS= read -r LINE
+	do
+		[[ "$LINE" == "$finish" && $active -eq 1 ]] && active=0
+		if [[ $active -eq 1 ]]; then [[ -n "$OUTPUT" ]] && OUTPUT="$OUTPUT$LF$LINE" || OUTPUT="$LINE"; fi
+		[[ "$LINE" == "$start" && $active -eq 0 ]] && active=1
+	done < "$filePath"
+
+	echo "$OUTPUT"
+}
+
+parseBlock() {
+	local CONTENT="${1:-}"
+
+	[[ -z "$CONTENT" ]] && return
+
+	local PATTERN='((\{\{(#|/)?([a-z\.\_][a-z0-9\.\_]+)( ([a-z\.\_][a-z0-9\.\_]+))?\}\})+)'
+	local OPEN='((\{\{#([a-z\.\_][a-z0-9\.\_]+)( ([a-z\.\_][a-z0-9\.\_]+))?\}\})+)'
+	local CLOSE='((\{\{/([a-z\.\_][a-z0-9\.\_]+)( ([a-z\.\_][a-z0-9\.\_]+))?\}\})+)'
+	local CMD='((\{\{(#|/)+(if|each)( ([a-z\.\_][a-z0-9\.\_]+))\}\})+)'
+	local COND='((\{\{(#|/)+(if)( ([a-z\.\_][a-z0-9\.\_]+))\}\})+)'
+	local COND_OPEN='((\{\{#(if)( ([a-z\.\_][a-z0-9\.\_]+))\}\})+)'
+	local COND_CLOSE='((\{\{/(if)( ([a-z\.\_][a-z0-9\.\_]+))\}\})+)'
+	local LOOP='((\{\{(#|/)+(each)( ([a-z\.\_][a-z0-9\.\_]+))\}\})+)'
+	local LOOP_OPEN='((\{\{#(each)( ([a-z\.\_][a-z0-9\.\_]+))\}\})+)'
+	local LOOP_CLOSE='((\{\{/(each)( ([a-z\.\_][a-z0-9\.\_]+))\}\})+)'
+	local VAR='((\{\{([a-z\.\_][a-z0-9\.\_]+)\}\})+)' 											# 3 groups
+
+	[[ -z "$CONTENT" ]] && return
+
+	while IFS="㉿" read -r LINE
+	do
+		if [[ ${LINE,,} =~ $PATTERN ]]; then
+			if [[ ${LINE,,} =~ $VAR ]]; then
+
+			else
+
+			fi
+		fi
+	done <<< "$CONTENT"
+}
+
+parseBody() {
+	clear
+}
+
+writeChangelog() {
+	clear
+}
+
+buildChangelog() {
+	if [[ $LOGGING == true ]]; then
+		echoLog "spacer"
+		echoLog "Building Changelog" --color=gold
+		echoLog "separator"
+	fi
+
+	[[ $LOGGING == true ]] && echoLog "Declaring local template variables ..."
+
+	local TMPL_FILE
+	local TMPL_HEADER
+	local TMPL_FOOTER
+	local TMPL_CONTENT
+
+	TMPL="$TMPLDIR/$TMPL_FILE"
+
+	[[ $LOGGING == true ]] && echoLog "Using Markdown Template '$TMPL'"
+
+	if [[ -f "$TMPL" ]]; then
+		[[ $LOGGING == true ]] && echoLog "Parsing template blocks ..."
+
+		TMPL_HEADER=$(parseTemplateBlock "{{#doc header}}" "{{/doc header}}")
+		TMPL_FOOTER=$(parseTemplateBlock "{{#doc footer}}" "{{/doc footer}}")
+		TMPL_BODY=$(parseTemplateBlock "{{#doc body}}" "{{/doc body}}")
+
+		[[ -f "$PWD/CHANGELOG.md" ]] && TMPL_CONTENT=$(parseTemplateBlock "[//]: # (START)" "[//]: # (END)" "$PWD/CHANGELOG.md") || TMPL_CONTENT=""
+
+		[[ $LOGGING == true ]] && echoLog "Replacing template values ..."
+
+		TMPL_HEADER=$(parseBlock "$TMPL_HEADER")
+		TMPL_FOOTER=$(parseBlock "$TMPL_FOOTER")
+
+
+
+	else
+		releaseExit "release :: ERROR - Template File '$TMPL' Not Found!"
+	fi
+
+}
+
 main() {
     PROFILE["CONFIG_STARTTIME"]="$(date +%s.%N)"
-	[[ $LOGGING == true ]] && clear
+
+	if [[ $LOGGING == true ]]; then
+		clear
+		echoLog "Installing Release-Manager - Changelog Creator & Packager" --color=yellow
+		echoLog "line" --color=gold
+		echoLog "spacer"
+	fi
 
 	check
-
 	getConfig
-    PROFILE["CONFIG_ENDTIME"]="$(date +%s.%N)"
+	checkGit
 
+    PROFILE["CONFIG_ENDTIME"]="$(date +%s.%N)"
+    PROFILE["DATA_STARTTIME"]="$(date +%s.%N)"
     PROFILE["CONFIG_RUNTIME"]=$(printf "%.2f" "$(echo "${PROFILE["CONFIG_ENDTIME"]} - ${PROFILE["CONFIG_STARTTIME"]}" | bc -l)")
+
     if [[ $LOGGING == true ]]; then
         echoLog "separator"
         echoLog "Profiler::Configuration Complete in ${PROFILE["CONFIG_RUNTIME"]} seconds" --color=cyan
         echoLog "separator"
     fi
 
+	getCommitData
+
+    PROFILE["DATA_ENDTIME"]="$(date +%s.%N)"
+    PROFILE["RENDER_STARTTIME"]="$(date +%s.%N)"
+    PROFILE["DATA_RUNTIME"]=$(printf "%.2f" "$(echo "${PROFILE["DATA_ENDTIME"]} - ${PROFILE["DATA_STARTTIME"]}" | bc -l)")
+
+    if [[ $LOGGING == true ]]; then
+        echoLog "separator"
+        echoLog "Profiler::Data Preparation Complete in ${PROFILE["DATA_RUNTIME"]} seconds" --color=cyan
+        echoLog "separator"
+    fi
+
+	buildChangelog
+
+    PROFILE["RENDER_ENDTIME"]="$(date +%s.%N)"
+    PROFILE["RENDER_RUNTIME"]=$(printf "%.2f" "$(echo "${PROFILE["RENDER_ENDTIME"]} - ${PROFILE["RENDER_STARTTIME"]}" | bc -l)")
+
+    if [[ $LOGGING == true ]]; then
+        echoLog "separator"
+        echoLog "Profiler::Rendering Complete in ${PROFILE["RENDER_RUNTIME"]} seconds" --color=cyan
+        echoLog "separator"
+    fi
 
     PROFILE["ENDTIME"]="$(date +%s.%N)"
     # shellcheck disable=SC2116
@@ -313,7 +661,7 @@ do
 					shift 3
 					;;
 				--)
-					help
+					sudo cat "$RM_HELP/release.hlp"
 					exit 1
 					;;
 				*)
@@ -333,7 +681,7 @@ do
 			LOGGING="$state"
 			;;
 		-h|--help)
-			help
+			sudo cat "$RM_HELP/release.hlp"
 			exit 0
 			;;
 		--)
