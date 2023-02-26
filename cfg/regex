@@ -37,5 +37,15 @@
 #	echo "MATCHING: $match || $one || $two || $three || $four"
 #	exit
 #done
-name='joshua'
-[[ $name =~ ([ao].*)([oa]) ]] && echo ${name/$BASH_REMATCH/X${BASH_REMATCH[1]}X${BASH_REMATCH[2]}}
+#STRING="Changelog last updated on {{date_today}} for [{{name}}]({{repo_url}}) by [Release Manager](https://github.com/ragdata/release-manager)"
+#read -a ASTRING <<< "$STRING"
+#for aString in "${ASTRING[@]}"
+#do
+#	echo "$aString"
+#done
+VAR='((\{\{\s*([a-z\.\_][a-z0-9\.\_]+)\s*\}\})+)'
+STRING="Changelog last updated on {{date_today}} for [{{name}}]({{repo_url}}) by [Release Manager](https://github.com/ragdata/release-manager)"
+#STRING="* {{#if commit_scope not empty}}({{commit_scope}}) {{/if}}{{commit_subject}} [{{commit_ref}}]({{ commit_url }})"
+#vars=$(echo "$STRING" | grep -oE '\{\{\s*[A-Za-z0-9_]+\s*\}\}' | sort | uniq | sed -e 's/^{{//' -e 's/}}$//')
+vars=$(echo "$STRING" | grep -oE "$VAR")
+echo $vars

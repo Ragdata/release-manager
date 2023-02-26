@@ -11,7 +11,7 @@ Options:
 
 	-h, --help                  Display this help information
 	-n, --uninstall             Uninstall Release Manager
-	-u <arg>, --update=<arg>    Update Release Manager
+	-u, --update                Update Release Manager
 	-t <arg>, --type=<arg>      Process Release Type: (requires additional argument)
 	-l <arg>, --log=<arg>       Turn logging on or off
                                   - when enabling logging, the argument is optional

@@ -18,8 +18,8 @@ See [Release Manager Contributor's Guidelines](https://github.com/Ragdata/.githu
 {{type_description}}
 
 {{#each commits}}
-* {{#if commit_scope not empty}}({{commit_scope}}) {{/if}}{{commit_subject}} [{{commit_ref}}]({{commit_url}})
-{{#if commit_body not empty}}  * {{commit_body}}{{/if}}{{#if commit_footer not empty}}<br />{{commit_footer}}{{/if}}
+* {{#if commit_scope}}({{commit_scope}}) {{/if}}{{commit_subject}} [{{commit_ref}}]({{commit_url}})
+{{#if commit_body}}  * {{commit_body}}{{/if}}{{#if commit_footer}}<br />{{commit_footer}}{{/if}}
 {{/each commits}}
 
 {{/each sections}}

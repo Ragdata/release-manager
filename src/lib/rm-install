@@ -99,20 +99,6 @@ check() {
 	fi
 }
 
-rmLoadBBLibs() {
-	[[ -f "$RM_LIB/rm-loader" ]] && source "$RM_LIB/rm-loader" || source "$REPO_LIB/rm-loader"
-}
-
-rmLoadRMLibs() {
-	if [[ -f "$RM_LIB/functions" ]]; then
-		source "$RM_LIB/functions"
-		source "$RM_LIB/log"
-	else
-		source "$REPO_LIB/rm/functions"
-		source "$REPO_LIB/rm/log"
-	fi
-}
-
 rmSetup() {
 	clear
 
@@ -189,14 +175,8 @@ rmInstall() {
 		echo
 	fi
 
-	if [[ -d /opt/bb ]]; then
-		[[ $LOGGING == true ]] && echoLog "Installing Bash Bits Loader for Release Manager"
-		sudo install -m 755 -g root -o root --backup=simple "$REPO_LIB/bb/rm-loader" "$RM_LIB/rm-loader"
-	else
-		[[ $LOGGING == true ]] && echoLog "Installing Release Manager Libraries"
-		sudo install -m 644 -g root -o root --backup=simple "$REPO_LIB/rm/functions" "$RM_LIB/functions"
-		sudo install -m 644 -g root -o root --backup=simple "$REPO_LIB/rm/log" "$RM_LIB/log"
-	fi
+	[[ $LOGGING == true ]] && echoLog "Installing Bash Bits Loader for Release Manager"
+	sudo install -m 755 -g root -o root --backup=simple "$REPO_LIB/rm-loader" "$RM_LIB/rm-loader"
 
 	[[ $LOGGING == true ]] && echoLog "Installing remaining files for Release Manager"
 	sudo install -m 755 -g root -o root --backup=simple "$REPO_ETC/release" "$ETC/release"
@@ -282,4 +262,9 @@ rmUninstall() {
 # MAIN
 #-------------------------------------------------------------------
 
-if [ -d /opt/bb ]; then rmLoadBBLibs; else rmLoadRMLibs; fi
+if [[ ! -d /opt/bb ]]; then
+	echo "ERROR :: This package requires Bash Bits to be installed"
+	echo "Install Bash Bits (https://github.com/ragdata/bash-bits) and try again"
+fi
+
+[[ -f "$RM_LIB/rm-loader" ]] && source "$RM_LIB/rm-loader" || source "$REPO_LIB/rm-loader"

@@ -13,6 +13,9 @@
 # ==================================================================
 # Release Manager Executable
 # ==================================================================
+declare -gx LOGGING=true
+declare -gx PROFILING=true
+
 declare -Agx PROFILE
 
 PROFILE["STARTTIME"]="$(date +%s.%N)"
@@ -56,7 +59,6 @@ declare -agx TYPES
 
 declare -gx CONFIG
 declare -gx LOGGED_TYPES
-declare -gx LOGGING=true
 
 declare -gx TMPL
 
@@ -473,34 +475,34 @@ parseBlock() {
 
 	[[ -z "$CONTENT" ]] && return
 
-	local PATTERN='((\{\{(#|/)?([a-z\.\_][a-z0-9\.\_]+)( ([a-z\.\_][a-z0-9\.\_]+))?\}\})+)'
-	local OPEN='((\{\{#([a-z\.\_][a-z0-9\.\_]+)( ([a-z\.\_][a-z0-9\.\_]+))?\}\})+)'
-	local CLOSE='((\{\{/([a-z\.\_][a-z0-9\.\_]+)( ([a-z\.\_][a-z0-9\.\_]+))?\}\})+)'
-	local CMD='((\{\{(#|/)+(if|each)( ([a-z\.\_][a-z0-9\.\_]+))\}\})+)'
-	local COND='((\{\{(#|/)+(if)( ([a-z\.\_][a-z0-9\.\_]+))\}\})+)'
-	local COND_OPEN='((\{\{#(if)( ([a-z\.\_][a-z0-9\.\_]+))\}\})+)'
-	local COND_CLOSE='((\{\{/(if)( ([a-z\.\_][a-z0-9\.\_]+))\}\})+)'
-	local LOOP='((\{\{(#|/)+(each)( ([a-z\.\_][a-z0-9\.\_]+))\}\})+)'
-	local LOOP_OPEN='((\{\{#(each)( ([a-z\.\_][a-z0-9\.\_]+))\}\})+)'
-	local LOOP_CLOSE='((\{\{/(each)( ([a-z\.\_][a-z0-9\.\_]+))\}\})+)'
-	local VAR='((\{\{([a-z\.\_][a-z0-9\.\_]+)\}\})+)' 											# 3 groups
-
-	[[ -z "$CONTENT" ]] && return
+	local PATTERN='((\{\{\s*(#|/)?([A-Za-z\.\_][A-Za-z0-9\.\_]+)( ([A-Za-z\.\_][A-Za-z0-9\.\_]+))?\s*\}\})+)'
+	local OPEN='((\{\{\s*#([A-Za-z\.\_][A-Za-z0-9\.\_]+)( ([A-Za-z\.\_][A-Za-z0-9\.\_]+))?\s*\}\})+)'
+	local CLOSE='((\{\{\s*/([A-Za-z\.\_][A-Za-z0-9\.\_]+)( ([A-Za-z\.\_][A-Za-z0-9\.\_]+))?\s*\}\})+)'
+	local CMD='((\{\{\s*(#|/)+(if|each)( ([A-Za-z\.\_][A-Za-z0-9\.\_]+))\s*\}\})+)'
+	local COND='((\{\{\s*(#|/)+(if)( ([A-Za-z\.\_][A-Za-z0-9\.\_]+))\s*\}\})+)'
+	local COND_OPEN='((\{\{\s*#(if)( ([A-Za-z\.\_][A-Za-z0-9\.\_]+))\s*\}\})+)'
+	local COND_CLOSE='((\{\{\s*/(if)( ([A-Za-z\.\_][A-Za-z0-9\.\_]+))\s*\}\})+)'
+	local LOOP='((\{\{\s*(#|/)+(each)( ([A-Za-z\.\_][A-Za-z0-9\.\_]+))\s*\}\})+)'
+	local LOOP_OPEN='((\{\{\s*#(each)( ([A-Za-z\.\_][A-Za-z0-9\.\_]+))\s*\}\})+)'
+	local LOOP_CLOSE='((\{\{\s*/(each)( ([A-Za-z\.\_][A-Za-z0-9\.\_]+))\s*\}\})+)'
+	local VAR='((\{\{\s*([A-Za-z\.\_][A-Za-z0-9\.\_]+)\s*\}\})+)'
 
 	while IFS="㉿" read -r LINE
 	do
-		if [[ ${LINE,,} =~ $PATTERN ]]; then
-			if [[ ${LINE,,} =~ $VAR ]]; then
-
-			else
-
-			fi
-		fi
+#		if [[ ${LINE,,} =~ $PATTERN ]]; then
+#			if [[ ${LINE,,} =~ $VAR ]]; then
+#
+#			else
+#
+#			fi
+#		fi
 	done <<< "$CONTENT"
 }
 
-parseBody() {
-	clear
+parseVar() {
+	local CONTENT="${1:-}"
+
+
 }
 
 writeChangelog() {

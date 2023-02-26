@@ -94,10 +94,9 @@ Includes Command-Line & GitHub Actions Versions
 #### [More Detailed Features](#-table-of-contents)
 
 - Includes both **Command Line** and **GitHub Actions** versions
-- Is fully compatible with [Bash Bits][bash-bits], my modular bash library
-- Includes the `bb-logger` logging system from [Bash-Bits][bash-bits]
+- Makes use of [Bash Bits][bash-bits], my modular bash library
 - Highly customisable using a system of extendable configuration files
-- Also includes simple-to-use templates so you can alter the layout of output files
+- Also includes simple-to-use templates, so you can alter the layout of output files
 - Is a globally-installed package with a configuration file for each repo
 - Can output changelogs in either **Markdown** or **JSON format** - _OR BOTH!_
 - Will automatically generate the next version number, or accept one from you

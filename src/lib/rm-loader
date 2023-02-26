@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 # shellcheck disable=SC1090
 # ==================================================================
-# lib/bb/rm-loader
+# lib/rm-loader
 # ==================================================================
 # Bash Bits - Modular Bash Library
 #
-# File:         lib/bb/rm-loader
+# File:         lib/rm-loader
 # Author:       Ragdata
 # Date:         04/02/2023
 # License:      MIT License
