@@ -1,6 +1,6 @@
 <h1 align="center">
 
-<img src="https://github.com/Ragdata/Ragdata/blob/8d4a8519b655cad64f047ee25666b1fe3a470038/images/logo/banner/RM-1280x640.png" alt="Release Manager" />
+<img src="https://github.com/Ragdata/Ragdata/blob/76be6333ffe43c1733d070787ee03139292a69b5/images/logo/banner/ReleaseManager-Social-1280x640.png" alt="Release Manager" />
 
 [Release Manager v-1.0.0](https://github.com/ragdata/release-manager/releases)
 </h1>
