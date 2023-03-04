@@ -23,7 +23,7 @@ trap 'errorHandler $? ${LINENO}' ERR
 #-------------------------------------------------------------------
 # INITIALIZATION
 #-------------------------------------------------------------------
-declare -gx RM_REPO=""
+declare -gx RM_REPO
 
 RM_REPO="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &> /dev/null && pwd)"
 
