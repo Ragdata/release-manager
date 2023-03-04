@@ -1,6 +1,6 @@
 <h1 align="center">
 
-<img src="https://raw.githubusercontent.com/Ragdata/Ragdata/master/images/logo/banner/RM-800x400.png" alt="Release Manager" />
+<img src="https://github.com/Ragdata/Ragdata/blob/8d4a8519b655cad64f047ee25666b1fe3a470038/images/logo/banner/RM-1280x640.png" alt="Release Manager" />
 
 [Release Manager v-1.0.0](https://github.com/ragdata/release-manager/releases)
 </h1>
@@ -23,8 +23,10 @@ Includes Command-Line & GitHub Actions Versions
 
 <h4 align="center">Requires Bash4+ & Ubuntu Linux</h4>
 <br />
-> Please help me increase signal strength on this repo - give it a ⭐
 
+<p align="center">
+<img src="https://github.com/Ragdata/Ragdata/blob/d88213616f1bc874ee8c812d06b6a7b3b067f622/images/logo/banner/star-repo.png" alt="Star This Repo!">
+</p>
 
 ## 📖 Table of Contents
 
@@ -272,7 +274,7 @@ sudo config update
 ## 🚧 [Author / Maintainer](#-table-of-contents)
 
 <h3 align="center">
-<a href="https://github.com/ragdata" target="_blank"><img src="https://raw.githubusercontent.com/Ragdata/Ragdata/master/images/logo/banner/RedEyed-SW-D-800.png" alt="RedEyed Software" />
+<a href="https://github.com/ragdata" target="_blank"><img src="https://github.com/Ragdata/Ragdata/blob/e7d2606fb2007dfea00bb396e4670274272a2635/images/logo/banner/Ragdata-800x200.png" alt="RedEyed Software" />
 
 Created with ☕ by Ragdata</a>
 
@@ -312,7 +314,7 @@ If you discover any issue regarding the security of this project, please disclos
 Connect with my Social Channels
 </h3>
 
-<a href="https://twitter.com/RagdataAU" target="_blank"><img src="https://img.shields.io/badge/Twitter-55ACEE?style=for-the-badge&logo=twitter&logoColor=white" alt="Twitter"></a>
+<a href="https://twitter.com/RedEyedSoftware" target="_blank"><img src="https://img.shields.io/badge/Twitter-55ACEE?style=for-the-badge&logo=twitter&logoColor=white" alt="Twitter"></a>
 <a href="https://reddit.com/r/RedeyedSoftware" target="_blank"><img src="https://img.shields.io/badge/Reddit-FF4500?style=for-the-badge&logo=reddit&logoColor=white" alt="Reddit"></a>
 <a href="https://facebook.com/redeyedsoftware" target="_blank"><img src="https://img.shields.io/badge/Facebook-3B5998?style=for-the-badge&logo=facebook&logoColor=white" alt="Facebook"></a>
 <a href="https://ragdata.substack.com" target="_blank"><img src="https://img.shields.io/badge/Substack-FF6719?style=for-the-badge&logo=substack&logoColor=white" alt="Substack"></a>
@@ -340,7 +342,9 @@ It's not just code that I'm looking for though.  If you have any ideas or sugges
 
 ## 👍 [Supporting the Project](#-table-of-contents)
 
-> Help me increase signal strength on this repo - give it a  ⭐
+<p align="center">
+<img src="https://github.com/Ragdata/Ragdata/blob/d88213616f1bc874ee8c812d06b6a7b3b067f622/images/logo/banner/star-repo.png" alt="Star This Repo!">
+</p>
 
 The creation and maintenance of Open Source Software is definitely a labour of love - this is never going to be a path to riches.  The truth is, it takes not only a lot of time, it creates a substantial amount of personal expense, even when you're working on a shoestring, to keep these projects online and freely available.
 
